@@ -17,6 +17,7 @@ const prefab = {
 
     return loader.load().then((rawValues: any) => {
       this.setConfig(rawValues);
+      this.loaded = true;
     });
   },
 

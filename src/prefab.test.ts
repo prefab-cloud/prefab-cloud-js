@@ -4,6 +4,7 @@ import prefab from '../index';
 import FetchMock from '../test/fetchMock';
 
 beforeEach(() => {
+  prefab.loaded = false;
   prefab.configs = {};
 });
 
@@ -17,12 +18,14 @@ describe('init', () => {
     }));
 
     const config = { apiKey: '1234', identity: new Identity('user', { device: 'desktop' }) };
+    expect(prefab.loaded).toBe(false);
 
     await prefab.init(config);
 
     expect(prefab.configs).toEqual({
       turbo: new Config('turbo', 2.5, 'double'),
     });
+    expect(prefab.loaded).toBe(true);
   });
 
   it('returns falsy responses for flag checks if it cannot load config', async () => {
@@ -30,12 +33,16 @@ describe('init', () => {
 
     const config = { apiKey: '1234', identity: new Identity('user', { device: 'desktop' }) };
 
+    expect(prefab.loaded).toBe(false);
+
     prefab.init(config).catch((reason: any) => {
       expect(reason.message).toEqual('Network error');
       expect(prefab.configs).toEqual({});
 
       expect(prefab.isEnabled('foo')).toBe(false);
     });
+
+    expect(prefab.loaded).toBe(false);
   });
 });
 

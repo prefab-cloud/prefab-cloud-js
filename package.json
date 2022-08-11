@@ -1,5 +1,5 @@
 {
-  "name": "prefab",
+  "name": "prefab-cloud-js",
   "version": "0.0.1",
   "description": "FeatureFlags & Dynamic Configuration as a Service",
   "main": "dist/index.js",
@@ -18,8 +18,8 @@
     "typescript": "^4.7.4"
   },
   "scripts": {
-    "build": "tsc",
-    "test": "tsc && jest --verbose dist/",
+    "build": "./build.sh",
+    "test": "npm run build && jest --verbose dist/",
     "generate-ts-types": "tsc --declaration --allowJs --emitDeclarationOnly --outDir types --project tsconfig.build.json",
     "release": "npm run build && npm run generate-ts-types && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js"
   }

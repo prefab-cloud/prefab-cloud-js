@@ -21,7 +21,6 @@ export default class Loader {
     this.identity = identity;
     this.endpoints = endpoints || [
       'https://api-prefab-cloud.global.ssl.fastly.net/api/v1',
-      'https://api.prefab.cloud/api/v1',
     ];
   }
 

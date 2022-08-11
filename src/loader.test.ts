@@ -7,18 +7,21 @@ const identity = new Identity('test@example.com', { foo: 'bar' });
 const apiKey = 'apiKey';
 
 describe('overriding endpoints', () => {
-  it('is supported by setting the endpoints before calling load', () => {
+  it('has one default endpoint', () => {
     const loader = new Loader({ identity, apiKey });
 
     expect(loader.endpoints).toStrictEqual([
       'https://api-prefab-cloud.global.ssl.fastly.net/api/v1',
-      'https://api.prefab.cloud/api/v1',
     ]);
+  });
 
-    loader.endpoints = [
+  it('supports overriding the endpoints', () => {
+    const endpoints = [
       'https://example.global.ssl.fastly.net/api/v1',
       'https://example.com/api/v1',
     ];
+
+    const loader = new Loader({ identity, apiKey, endpoints });
 
     expect(loader.endpoints).toStrictEqual([
       'https://example.global.ssl.fastly.net/api/v1',
@@ -56,10 +59,10 @@ describe('load', () => {
 
     expect(fetchMock.requestCount).toStrictEqual(1);
     expect(results).toStrictEqual(data.values);
-    expect(fetchMock.fetchedUrl?.host).toStrictEqual('api-prefab-cloud.global.ssl.fastly.net');
+    expect(fetchMock.lastUrl?.host).toStrictEqual('api-prefab-cloud.global.ssl.fastly.net');
   });
 
-  it('can successfully return from the second endpoint if the first fails', async () => {
+  it('can successfully return from a second endpoint if the first fails', async () => {
     const fetchMock = new FetchMock(({ requestCount } : {requestCount: number}) => {
       if (requestCount < 2) {
         return failure;
@@ -68,24 +71,34 @@ describe('load', () => {
       return success;
     });
 
-    const loader = new Loader({ identity, apiKey });
+    const endpoints = [
+      'https://example.global.ssl.fastly.net/api/v1',
+      'https://example.com/api/v1',
+    ];
+
+    const loader = new Loader({ identity, apiKey, endpoints });
 
     const results = await loader.load();
 
     expect(fetchMock.requestCount).toStrictEqual(2);
     expect(results).toStrictEqual(data.values);
-    expect(fetchMock.fetchedUrl?.host).toStrictEqual('api.prefab.cloud');
+    expect(fetchMock.lastUrl?.host).toStrictEqual('example.com');
   });
 
   it('fails when no endpoints are reachable', async () => {
     const fetchMock = new FetchMock(() => failure);
 
-    const loader = new Loader({ identity, apiKey });
+    const endpoints = [
+      'https://example.global.ssl.fastly.net/api/v1',
+      'https://example.com/api/v1',
+    ];
+
+    const loader = new Loader({ identity, apiKey, endpoints });
 
     loader.load().catch((reason: any) => {
       expect(reason.message).toEqual('Network error');
       expect(fetchMock.requestCount).toStrictEqual(2);
-      expect(fetchMock.fetchedUrl?.host).toStrictEqual('api.prefab.cloud');
+      expect(fetchMock.lastUrl?.host).toStrictEqual('example.com');
     });
   });
 });

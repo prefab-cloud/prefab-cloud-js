@@ -17,7 +17,7 @@ export default class Config {
   static digest(rawValues: {[key: string]: any}) {
     const configs = {} as {[key: string]: Config};
 
-    Object.keys(rawValues).forEach((key) => {
+    Object.keys(rawValues || {}).forEach((key) => {
       const obj = rawValues[key];
       const type = Object.keys(obj)[0];
 

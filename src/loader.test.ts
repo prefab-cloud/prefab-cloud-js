@@ -12,6 +12,7 @@ describe('overriding endpoints', () => {
 
     expect(loader.endpoints).toStrictEqual([
       'https://api-prefab-cloud.global.ssl.fastly.net/api/v1',
+      'https://api.prefab.cloud/api/v1',
     ]);
   });
 
@@ -71,34 +72,24 @@ describe('load', () => {
       return success;
     });
 
-    const endpoints = [
-      'https://example.global.ssl.fastly.net/api/v1',
-      'https://example.com/api/v1',
-    ];
-
-    const loader = new Loader({ identity, apiKey, endpoints });
+    const loader = new Loader({ identity, apiKey });
 
     const results = await loader.load();
 
     expect(fetchMock.requestCount).toStrictEqual(2);
     expect(results).toStrictEqual(data.values);
-    expect(fetchMock.lastUrl?.host).toStrictEqual('example.com');
+    expect(fetchMock.lastUrl?.host).toStrictEqual('api.prefab.cloud');
   });
 
   it('fails when no endpoints are reachable', async () => {
     const fetchMock = new FetchMock(() => failure);
 
-    const endpoints = [
-      'https://example.global.ssl.fastly.net/api/v1',
-      'https://example.com/api/v1',
-    ];
-
-    const loader = new Loader({ identity, apiKey, endpoints });
+    const loader = new Loader({ identity, apiKey });
 
     loader.load().catch((reason: any) => {
       expect(reason.message).toEqual('Network error');
       expect(fetchMock.requestCount).toStrictEqual(2);
-      expect(fetchMock.lastUrl?.host).toStrictEqual('example.com');
+      expect(fetchMock.lastUrl?.host).toStrictEqual('api.prefab.cloud');
     });
   });
 });

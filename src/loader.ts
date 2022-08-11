@@ -28,7 +28,7 @@ export default class Loader {
   }
 
   url(root: string) {
-    return `${root}/feature_flags/${apiHash(this.apiKey)}/${this.identity.encode()}`;
+    return `${root}/configs/eval/${apiHash(this.apiKey)}/${this.identity.encode()}`;
   }
 
   loadFromEndpoint(index : number, options: object, resolve : Function, reject : Function) {

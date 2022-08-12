@@ -1,6 +1,6 @@
 {
-  "name": "prefab-cloud-js",
-  "version": "0.0.1",
+  "name": "@prefab-cloud/prefab-cloud-js",
+  "version": "0.1.0",
   "description": "FeatureFlags & Dynamic Configuration as a Service",
   "main": "dist/index.js",
   "author": "Jeffrey Chupp",
@@ -21,6 +21,20 @@
     "build": "./build.sh",
     "test": "npm run build && jest --verbose dist/",
     "generate-ts-types": "tsc --declaration --allowJs --emitDeclarationOnly --outDir types --project tsconfig.build.json",
-    "release": "npm run build && npm run generate-ts-types && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js"
-  }
+    "release": "npm run build && npm run generate-ts-types && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js",
+    "preversion": "npm run test",
+    "postversion": "npm run release && git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prefab-cloud/prefab-cloud-js.git"
+  },
+  "keywords": [
+    "feature-flags",
+    "config"
+  ],
+  "bugs": {
+    "url": "https://github.com/prefab-cloud/prefab-cloud-js/issues"
+  },
+  "homepage": "https://github.com/prefab-cloud/prefab-cloud-js#readme"
 }

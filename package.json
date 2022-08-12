@@ -1,6 +1,6 @@
 {
   "name": "prefab-cloud-js",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "FeatureFlags & Dynamic Configuration as a Service",
   "main": "dist/index.js",
   "author": "Jeffrey Chupp",

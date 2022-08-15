@@ -1,5 +1,6 @@
 import Identity from './identity';
 import Loader from './loader';
+import version from './version';
 
 import FetchMock from '../test/fetchMock';
 
@@ -63,7 +64,7 @@ describe('load', () => {
     expect(fetchMock.lastUrl?.host).toStrictEqual('api-prefab-cloud.global.ssl.fastly.net');
     expect(fetchMock.lastRequestOptions?.headers).toStrictEqual({
       Authorization: 'Basic dTphcGlLZXk=',
-      'X-PrefabCloud-Client-Version': 'prefab-cloud-js0.0.1',
+      'X-PrefabCloud-Client-Version': `prefab-cloud-js${version}`,
     });
   });
 

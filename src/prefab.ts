@@ -8,14 +8,16 @@ const prefab = {
 
   loaded: false as boolean,
 
+  loader: undefined as Loader | undefined,
+
   async init({
-    apiKey, identity, endpoints = undefined,
-  }: {apiKey: string, identity: Identity, endpoints?: string[] | undefined }) {
-    const loader = new Loader({
-      apiKey, identity, endpoints,
+    apiKey, identity, endpoints = undefined, timeout = undefined,
+  }: {apiKey: string, identity: Identity, endpoints?: string[] | undefined, timeout?: number }) {
+    this.loader = new Loader({
+      apiKey, identity, endpoints, timeout,
     });
 
-    return loader.load().then((rawValues: any) => {
+    return this.loader.load().then((rawValues: any) => {
       this.setConfig(rawValues);
       this.loaded = true;
     });

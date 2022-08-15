@@ -13,7 +13,6 @@ export default class FetchMock {
       this.requestCount += 1;
       this.lastUrl = new URL(url.toString());
 
-
       return logic({ url, requestCount: this.requestCount });
     });
   }

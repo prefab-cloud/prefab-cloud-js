@@ -2,6 +2,7 @@ import Config from './config';
 import Identity from './identity';
 import prefab from '../index';
 import FetchMock from '../test/fetchMock';
+import { DEFAULT_TIMEOUT } from './loader';
 
 beforeEach(() => {
   prefab.loaded = false;
@@ -9,6 +10,14 @@ beforeEach(() => {
 });
 
 describe('init', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runAllTimers();
+  });
+
   it('works when the request is successful', async () => {
     const data = { values: { turbo: { double: 2.5 } } };
 
@@ -43,6 +52,27 @@ describe('init', () => {
     });
 
     expect(prefab.loaded).toBe(false);
+  });
+
+  it('allows passing a timeout down to the loader', async () => {
+    const data = { values: { turbo: { double: 2.5 } } };
+
+    FetchMock.mock(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(data),
+    }));
+
+    const config = { apiKey: '1234', identity: new Identity('user', { device: 'desktop' }) } as any;
+    expect(prefab.loaded).toBe(false);
+
+    await prefab.init(config);
+    expect(prefab.loader?.timeout).toEqual(DEFAULT_TIMEOUT);
+
+    const NEW_TIMEOUT = 123;
+    config.timeout = NEW_TIMEOUT;
+
+    await prefab.init(config);
+    expect(prefab.loader?.timeout).toEqual(NEW_TIMEOUT);
   });
 });
 

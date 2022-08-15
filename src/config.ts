@@ -18,10 +18,15 @@ export default class Config {
     const configs = {} as {[key: string]: Config};
 
     Object.keys(rawValues || {}).forEach((key) => {
-      const obj = rawValues[key];
-      const type = Object.keys(obj)[0];
+      const value = rawValues[key];
 
-      configs[key] = new Config(key, obj[type], type);
+      if (typeof value === 'object') {
+        const type = Object.keys(value)[0];
+
+        configs[key] = new Config(key, value[type], type);
+      } else {
+        configs[key] = new Config(key, value, 'unknown');
+      }
     });
 
     return configs;

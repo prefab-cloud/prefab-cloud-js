@@ -46,22 +46,45 @@ describe('init', () => {
   });
 });
 
-test('setConfig', () => {
-  expect(prefab.configs).toEqual({});
+describe('setConfig', () => {
+  it('works when types are provided', () => {
+    expect(prefab.configs).toEqual({});
 
-  prefab.setConfig({
-    turbo: {
-      double: 2.5,
-    },
+    prefab.setConfig({
+      turbo: {
+        double: 2.5,
+      },
 
-    foo: {
-      bool: true,
-    },
+      foo: {
+        bool: true,
+      },
+    });
+
+    expect(prefab.configs).toEqual({
+      turbo: new Config('turbo', 2.5, 'double'),
+      foo: new Config('foo', true, 'bool'),
+    });
+
+    expect(prefab.isEnabled('foo')).toBe(true);
+    expect(prefab.get('turbo')).toEqual(2.5);
   });
 
-  expect(prefab.configs).toEqual({
-    turbo: new Config('turbo', 2.5, 'double'),
-    foo: new Config('foo', true, 'bool'),
+  it('works when types are not provided', () => {
+    expect(prefab.configs).toEqual({});
+
+    prefab.setConfig({
+      turbo: 2.5,
+
+      foo: true,
+    });
+
+    expect(prefab.configs).toEqual({
+      turbo: new Config('turbo', 2.5, 'unknown'),
+      foo: new Config('foo', true, 'unknown'),
+    });
+
+    expect(prefab.isEnabled('foo')).toBe(true);
+    expect(prefab.get('turbo')).toEqual(2.5);
   });
 });
 

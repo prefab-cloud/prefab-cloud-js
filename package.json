@@ -23,8 +23,7 @@
   "scripts": {
     "build": "./build.sh",
     "test": "npm run build && jest --verbose dist/",
-    "generate-ts-types": "tsc --declaration --allowJs --emitDeclarationOnly --project tsconfig.build.json --outFile dist/index.d.ts ",
-    "release": "npm run test && npm run generate-ts-types && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js",
+    "release": "npm run test && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js",
     "version": "echo 'version' && npm run release && git add src/version.ts",
     "postversion": "echo 'postversion' && git push && git push --tags"
   },

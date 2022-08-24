@@ -4,7 +4,7 @@ A client for [Prefab]
 
 ## Installation
 
-`npm install @prefab-cloud/prefab-cloud-js` or `yarn install @prefab-cloud/prefab-cloud-js`
+`npm install @prefab-cloud/prefab-cloud-js` or `yarn add @prefab-cloud/prefab-cloud-js`
 
 ## Usage in your app
 
@@ -38,7 +38,7 @@ Here's an explanation of each property
 
 ## Usage in your test suite
 
-In your test suite, you probably want to skip the `prefab.init` altogether and instead use `prefab.setConfig` to setup your test state.
+In your test suite, you probably want to skip the `prefab.init` altogether and instead use `prefab.setConfig` to set up your test state.
 
 ```javascript
 it('shows the turbo button when the feature is enabled', () => {

@@ -53,13 +53,13 @@ describe('load', () => {
     beforeEach(() => {
       const app = express();
 
-      app.get('/too-long/configs/eval/*/*', (_, res:any) => {
+      app.get('/too-long/configs/eval/*', (_, res:any) => {
         setTimeout(() => {
           res.send('{ "values": { "failover": { "bool": false } } }');
         }, TIMEOUT + 1000);
       });
 
-      app.get('/failover/configs/eval/*/*', (_, res:any) => {
+      app.get('/failover/configs/eval/*', (_, res:any) => {
         res.send('{ "values": { "failover": { "bool": true } } }');
       });
 

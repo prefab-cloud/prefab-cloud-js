@@ -7,8 +7,6 @@ const headers = (apiKey: string) => ({
   'X-PrefabCloud-Client-Version': `prefab-cloud-js${version}`,
 });
 
-const apiHash = (apiKey: string) => base64Encode(apiKey);
-
 export const DEFAULT_TIMEOUT = 10000;
 
 export default class Loader {
@@ -35,7 +33,7 @@ export default class Loader {
   }
 
   url(root: string) {
-    return `${root}/configs/eval/${apiHash(this.apiKey)}/${this.identity.encode()}`;
+    return `${root}/configs/eval/${this.identity.encode()}`;
   }
 
   loadFromEndpoint(index : number, options: object, resolve : Function, reject : Function) {

@@ -5,10 +5,5 @@ import Identity from './src/identity';
 import version from './src/version';
 
 export {
-  Config,
-  ConfigValue,
-  Identity,
-  version,
+  prefab, Config, ConfigValue, Identity, version,
 };
-
-export default prefab;

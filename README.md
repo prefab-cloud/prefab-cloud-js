@@ -11,7 +11,7 @@ A client for [Prefab]
 Initialize prefab with your api key and an `Identity` for the current user/visitor:
 
 ```javascript
-import prefab, { Identity } from '@prefab-cloud/prefab-cloud-js'
+import { prefab, Identity } from '@prefab-cloud/prefab-cloud-js'
 
 const options = { apiKey: '1234', identity: new Identity('user-1234', { device: 'desktop' }) };
 await prefab.init(options);

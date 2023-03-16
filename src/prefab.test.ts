@@ -1,6 +1,4 @@
-import Config from './config';
-import Identity from './identity';
-import prefab from '../index';
+import { prefab, Config, Identity } from '../index';
 import FetchMock from '../test/fetchMock';
 import { DEFAULT_TIMEOUT } from './loader';
 

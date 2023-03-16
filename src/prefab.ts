@@ -3,8 +3,15 @@ import ConfigValue from './configValue';
 import Identity from './identity';
 import Loader from './loader';
 
-const prefab = {
-  configs: {} as {[key: string]: Config},
+type InitRequest = {
+  apiKey: string;
+  identity: Identity;
+  endpoints?: string[] | undefined;
+  timeout?: number;
+};
+
+export const prefab = {
+  configs: {} as { [key: string]: Config },
 
   loaded: false as boolean,
 
@@ -12,9 +19,12 @@ const prefab = {
 
   async init({
     apiKey, identity, endpoints = undefined, timeout = undefined,
-  }: {apiKey: string, identity: Identity, endpoints?: string[] | undefined, timeout?: number }) {
+  }: InitRequest) {
     this.loader = new Loader({
-      apiKey, identity, endpoints, timeout,
+      apiKey,
+      identity,
+      endpoints,
+      timeout,
     });
 
     return this.loader.load().then((rawValues: any) => {
@@ -23,17 +33,15 @@ const prefab = {
     });
   },
 
-  setConfig(rawValues: {[key: string]: any}) {
+  setConfig(rawValues: { [key: string]: any }) {
     this.configs = Config.digest(rawValues);
   },
 
-  isEnabled(key: string) : boolean {
+  isEnabled(key: string): boolean {
     return this.get(key) === true;
   },
 
-  get(key: string) : ConfigValue {
+  get(key: string): ConfigValue {
     return this.configs[key]?.value;
   },
 };
-
-export default prefab;

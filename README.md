@@ -30,11 +30,11 @@ setTimeout(ping, prefab.get('ping-delay'));
 
 Here's an explanation of each property
 
-| property    | example                        | purpose                                                                                            |
-|-------------|--------------------------------|----------------------------------------------------------------------------------------------------|
+| property    | example                        | purpose                                                                                  |
+|-------------|--------------------------------|------------------------------------------------------------------------------------------|
 | `isEnabled` | `prefab.isEnabled("new-logo")` | returns a boolean (default `false`) if a feature is enabled based on the current context |
-| `get`       | `prefab.get('retry-count')`    | returns the value of a flag or config evaluated in the current context |
-| `loaded`    | `if (prefab.loaded) { ... }`   | a boolean indicating whether prefab content has loaded                                             |
+| `get`       | `prefab.get('retry-count')`    | returns the value of a flag or config evaluated in the current context                   |
+| `loaded`    | `if (prefab.loaded) { ... }`   | a boolean indicating whether prefab content has loaded                                   |
 
 ## Usage in your test suite
 

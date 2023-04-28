@@ -41,6 +41,6 @@ export default class Context {
       };
     });
 
-    return base64Encode(JSON.stringify({ contexts: formatted }));
+    return encodeURIComponent(base64Encode(JSON.stringify({ contexts: formatted })));
   }
 }

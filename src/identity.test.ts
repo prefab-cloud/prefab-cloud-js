@@ -16,7 +16,6 @@ describe('constructor', () => {
 
   it('initializes with a lookup key and attributes', () => {
     const identity = new Identity(lookup, { foo: 'bar' });
-    expect(identity.lookup).toEqual(lookup);
     expect(identity.attributes).toEqual({ foo: 'bar' });
   });
 

@@ -16,14 +16,15 @@ describe('constructor', () => {
 });
 
 describe('encode', () => {
-  it('encodes the contexts as json then base64', () => {
+  it('encodes the contexts as json then base64 then encodeURIComponent', () => {
     const context = new Context({
       user: { firstName: 'Fred', lastName: 'Jones', id: 10001 },
       team: { name: 'Sales', isCostCenter: false },
     });
 
     const encoded = context.encode();
-    const decoded = JSON.parse(base64Decode(encoded));
+
+    const decoded = JSON.parse(base64Decode(decodeURIComponent(encoded)));
 
     expect(decoded).toStrictEqual({
       contexts: [
@@ -45,7 +46,7 @@ describe('encode', () => {
       ],
     });
 
-    expect(encoded).toEqual(
+    expect(decodeURIComponent(encoded)).toEqual(
       'eyJjb250ZXh0cyI6W3sidHlwZSI6InVzZXIiLCJ2YWx1ZXMiOnsiZmlyc3ROYW1lIjp7InN0cmluZyI6IkZyZWQifSwibGFzdE5hbWUiOnsic3RyaW5nIjoiSm9uZXMifSwiaWQiOnsiaW50IjoxMDAwMX19fSx7InR5cGUiOiJ0ZWFtIiwidmFsdWVzIjp7Im5hbWUiOnsic3RyaW5nIjoiU2FsZXMifSwiaXNDb3N0Q2VudGVyIjp7ImJvb2wiOmZhbHNlfX19XX0=',
     );
   });

@@ -1,6 +1,8 @@
-import { prefab, Config, Identity } from '../index';
+import { prefab, Config, Context } from '../index';
 import FetchMock from '../test/fetchMock';
 import { DEFAULT_TIMEOUT } from './loader';
+
+type InitParams = Parameters<typeof prefab.init>[0];
 
 beforeEach(() => {
   prefab.loaded = false;
@@ -24,10 +26,13 @@ describe('init', () => {
       json: () => Promise.resolve(data),
     }));
 
-    const config = { apiKey: '1234', identity: new Identity('user', { device: 'desktop' }) };
+    const params: InitParams = {
+      apiKey: '1234',
+      context: new Context({ user: { device: 'desktop' } }),
+    };
     expect(prefab.loaded).toBe(false);
 
-    await prefab.init(config);
+    await prefab.init(params);
 
     expect(prefab.configs).toEqual({
       turbo: new Config('turbo', 2.5, 'double'),
@@ -38,11 +43,14 @@ describe('init', () => {
   it('returns falsy responses for flag checks if it cannot load config', async () => {
     FetchMock.mock(() => Promise.reject(new Error('Network error')));
 
-    const config = { apiKey: '1234', identity: new Identity('user', { device: 'desktop' }) };
+    const params: InitParams = {
+      apiKey: '1234',
+      context: new Context({ user: { device: 'desktop' } }),
+    };
 
     expect(prefab.loaded).toBe(false);
 
-    prefab.init(config).catch((reason: any) => {
+    prefab.init(params).catch((reason: any) => {
       expect(reason.message).toEqual('Network error');
       expect(prefab.configs).toEqual({});
 
@@ -60,7 +68,10 @@ describe('init', () => {
       json: () => Promise.resolve(data),
     }));
 
-    const config = { apiKey: '1234', identity: new Identity('user', { device: 'desktop' }) } as any;
+    const config: InitParams = {
+      apiKey: '1234',
+      context: new Context({ user: { device: 'desktop' } }),
+    };
     expect(prefab.loaded).toBe(false);
 
     await prefab.init(config);

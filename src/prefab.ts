@@ -1,11 +1,13 @@
 import Config from './config';
 import ConfigValue from './configValue';
+import Context from './context';
 import Identity from './identity';
 import Loader from './loader';
 
-type InitRequest = {
+type InitParams = {
   apiKey: string;
-  identity: Identity;
+  identity?: Identity;
+  context?: Context;
   endpoints?: string[] | undefined;
   timeout?: number;
 };
@@ -18,11 +20,21 @@ export const prefab = {
   loader: undefined as Loader | undefined,
 
   async init({
-    apiKey, identity, endpoints = undefined, timeout = undefined,
-  }: InitRequest) {
+    apiKey,
+    context: providedContext,
+    identity,
+    endpoints = undefined,
+    timeout = undefined,
+  }: InitParams) {
+    const context = providedContext ?? identity?.toContext();
+
+    if (!context) {
+      throw new Error('Context must be provided');
+    }
+
     this.loader = new Loader({
       apiKey,
-      identity,
+      context,
       endpoints,
       timeout,
     });

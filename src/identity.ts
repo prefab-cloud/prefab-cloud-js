@@ -1,19 +1,20 @@
 import Key from './key';
-import base64Encode from './base64Encode';
+import Context from './context';
 
 export default class Identity {
-  lookup: string;
+  attributes: { [key: Key]: any };
 
-  attributes: {[key: Key]: any};
+  constructor(_lookup: string, attributes: { [key: Key]: any }) {
+    console.warn(
+      'Identity is deprecated and will be removed in a future release. Please use Context instead.',
+    );
 
-  constructor(lookup: string, attributes: {[key: Key]: any}) {
-    this.lookup = lookup;
     this.attributes = attributes;
   }
 
-  encode() {
-    const payload = { lookup: this.lookup, attributes: this.attributes || {} };
-
-    return base64Encode(JSON.stringify(payload));
+  toContext() {
+    return new Context({
+      '': this.attributes,
+    });
   }
 }

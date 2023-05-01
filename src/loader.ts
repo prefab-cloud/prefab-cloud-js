@@ -1,4 +1,4 @@
-import Identity from './identity';
+import Context from './context';
 import base64Encode from './base64Encode';
 import version from './version';
 
@@ -12,7 +12,7 @@ export const DEFAULT_TIMEOUT = 10000;
 export default class Loader {
   apiKey: string;
 
-  identity: Identity;
+  context: Context;
 
   endpoints: string[];
 
@@ -21,10 +21,18 @@ export default class Loader {
   abortTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   constructor({
-    apiKey, identity, endpoints = undefined, timeout,
-  } : {apiKey: string, identity: Identity, endpoints?: string[] | undefined, timeout?: number }) {
+    apiKey,
+    context,
+    endpoints = undefined,
+    timeout,
+  }: {
+    apiKey: string;
+    context: Context;
+    endpoints?: string[] | undefined;
+    timeout?: number;
+  }) {
     this.apiKey = apiKey;
-    this.identity = identity;
+    this.context = context;
     this.endpoints = endpoints || [
       'https://api-prefab-cloud.global.ssl.fastly.net/api/v1',
       'https://api.prefab.cloud/api/v1',
@@ -33,10 +41,10 @@ export default class Loader {
   }
 
   url(root: string) {
-    return `${root}/configs/eval/${this.identity.encode()}`;
+    return `${root}/configs/eval-with-context/${this.context.encode()}`;
   }
 
-  loadFromEndpoint(index : number, options: object, resolve : Function, reject : Function) {
+  loadFromEndpoint(index: number, options: object, resolve: Function, reject: Function) {
     const controller = new AbortController() as AbortController;
     const signal = controller?.signal;
 
@@ -51,9 +59,11 @@ export default class Loader {
           return response.json();
         }
         throw new Error(`${response.status} ${response.statusText}`);
-      }).then((data) => {
+      })
+      .then((data) => {
         resolve(data.values);
-      }).catch((error) => {
+      })
+      .catch((error) => {
         this.clearAbortTimeout();
 
         if (index < this.endpoints.length - 1) {

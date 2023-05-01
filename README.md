@@ -8,12 +8,12 @@ A client for [Prefab]
 
 ## Usage in your app
 
-Initialize prefab with your api key and an `Identity` for the current user/visitor:
+Initialize prefab with your api key and a `Context` for the current user/visitor/device/request:
 
 ```javascript
-import { prefab, Identity } from '@prefab-cloud/prefab-cloud-js'
+import { prefab, Context } from '@prefab-cloud/prefab-cloud-js'
 
-const options = { apiKey: '1234', identity: new Identity('user-1234', { device: 'desktop' }) };
+const options = { apiKey: '1234', context: new Context({user: { email: 'test@example.com' }, device: { mobile: true } }) };
 await prefab.init(options);
 ```
 
@@ -30,11 +30,11 @@ setTimeout(ping, prefab.get('ping-delay'));
 
 Here's an explanation of each property
 
-| property    | example                        | purpose                                                                                            |
-|-------------|--------------------------------|----------------------------------------------------------------------------------------------------|
-| `isEnabled` | `prefab.isEnabled("new-logo")` | returns a boolean (default `false`) if a feature is enabled based on the currently identified user |
-| `get`       | `prefab.get('retry-count')`    | returns the value of a flag or config evaluated in the context of the currently identified user    |
-| `loaded`    | `if (prefab.loaded) { ... }`   | a boolean indicating whether prefab content has loaded                                             |
+| property    | example                        | purpose                                                                                  |
+|-------------|--------------------------------|------------------------------------------------------------------------------------------|
+| `isEnabled` | `prefab.isEnabled("new-logo")` | returns a boolean (default `false`) if a feature is enabled based on the current context |
+| `get`       | `prefab.get('retry-count')`    | returns the value of a flag or config evaluated in the current context                   |
+| `loaded`    | `if (prefab.loaded) { ... }`   | a boolean indicating whether prefab content has loaded                                   |
 
 ## Usage in your test suite
 

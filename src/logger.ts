@@ -31,6 +31,10 @@ export const shouldLog = ({
       return WORD_LEVEL_LOOKUP[resolvedLevel.toString()] <= desiredLevelNumber;
     }
 
+    if (loggerNameWithPrefix.indexOf(".") === -1) {
+      break;
+    }
+
     loggerNameWithPrefix = loggerNameWithPrefix.slice(
       0,
       loggerNameWithPrefix.lastIndexOf(".")

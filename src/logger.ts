@@ -24,7 +24,7 @@ export const shouldLog = ({
   let loggerNameWithPrefix = PREFIX + loggerName;
   const desiredLevelNumber = WORD_LEVEL_LOOKUP[desiredLevel.toUpperCase()];
 
-  while (loggerNameWithPrefix.includes(".")) {
+  while (loggerNameWithPrefix.length > 0) {
     const resolvedLevel = get(loggerNameWithPrefix);
 
     if (resolvedLevel !== undefined) {

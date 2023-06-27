@@ -1,8 +1,9 @@
-import Config from './config';
-import ConfigValue from './configValue';
-import Context from './context';
-import Identity from './identity';
-import Loader from './loader';
+import Config from "./config";
+import ConfigValue from "./configValue";
+import Context from "./context";
+import Identity from "./identity";
+import Loader from "./loader";
+import { shouldLog } from "./logger";
 
 type InitParams = {
   apiKey: string;
@@ -29,7 +30,7 @@ export const prefab = {
     const context = providedContext ?? identity?.toContext();
 
     if (!context) {
-      throw new Error('Context must be provided');
+      throw new Error("Context must be provided");
     }
 
     this.loader = new Loader({
@@ -55,5 +56,9 @@ export const prefab = {
 
   get(key: string): ConfigValue {
     return this.configs[key]?.value;
+  },
+
+  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {
+    return shouldLog({ ...args, get: this.get.bind(this) });
   },
 };

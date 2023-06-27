@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add `shouldLog` for dynamic log levels
+
 ## [0.1.8] - 2023-05-01
 
 - Version bump for NPM

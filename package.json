@@ -25,7 +25,8 @@
     "test": "npm run build && jest --verbose dist/",
     "release": "npm run test && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js",
     "version": "echo 'version' && npm run release && git add src/version.ts",
-    "postversion": "echo 'postversion' && git push && git push --tags"
+    "postversion": "echo 'postversion' && git push && git push --tags",
+    "bundle": "npm run build && esbuild --target=esnext --bundle --outfile=dist/prefab.bundle.js --global-name=window.prefabNamespace dist/index.js"
   },
   "repository": {
     "type": "git",

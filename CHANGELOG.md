@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Add `shouldLog` for dynamic log levels
+- Properly consider root logger (#11)
+
+## 0.1.9 - 2023-06-27
+
+- Add `shouldLog` for dynamic log levels (#10)
 
 ## [0.1.8] - 2023-05-01
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.9 - 2023-06-27
 
 - Add `shouldLog` for dynamic log levels
 

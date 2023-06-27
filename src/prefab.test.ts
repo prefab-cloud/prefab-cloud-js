@@ -155,7 +155,7 @@ test("isEnabled", () => {
 });
 
 describe("shouldLog", () => {
-  test("compares against the default where there is no value", () => {
+  test("compares against the default level where there is no value", () => {
     expect(
       prefab.shouldLog({
         loggerName: "example",

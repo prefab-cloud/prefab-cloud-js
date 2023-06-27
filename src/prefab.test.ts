@@ -244,4 +244,28 @@ describe("shouldLog", () => {
       })
     ).toEqual(true);
   });
+
+  it("can use the root log level setting if nothing is found in the hierarchy", () => {
+    prefab.setConfig({
+      "log-level": {
+        logLevel: "INFO",
+      },
+    });
+
+    expect(
+      prefab.shouldLog({
+        loggerName: "some.test",
+        desiredLevel: "INFO",
+        defaultLevel: "ERROR",
+      })
+    ).toEqual(true);
+
+    expect(
+      prefab.shouldLog({
+        loggerName: "some.test",
+        desiredLevel: "DEBUG",
+        defaultLevel: "ERROR",
+      })
+    ).toEqual(false);
+  });
 });

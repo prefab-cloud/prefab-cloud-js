@@ -1,3 +1,3 @@
-type ConfigValue = number | string | boolean;
+type ConfigValue = number | string | boolean | undefined;
 
 export default ConfigValue;

@@ -9,6 +9,13 @@ const headers = (apiKey: string) => ({
 
 export const DEFAULT_TIMEOUT = 10000;
 
+export type LoaderParams = {
+  apiKey: string;
+  context: Context;
+  endpoints?: string[] | undefined;
+  timeout?: number;
+};
+
 export default class Loader {
   apiKey: string;
 
@@ -25,12 +32,7 @@ export default class Loader {
     context,
     endpoints = undefined,
     timeout,
-  }: {
-    apiKey: string;
-    context: Context;
-    endpoints?: string[] | undefined;
-    timeout?: number;
-  }) {
+  }: LoaderParams) {
     this.apiKey = apiKey;
     this.context = context;
     this.endpoints = endpoints || [

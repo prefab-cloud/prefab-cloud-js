@@ -1,6 +1,9 @@
 import { prefab, Config, Context } from "../index";
-import FetchMock from "../test/fetchMock";
 import { DEFAULT_TIMEOUT } from "./loader";
+import { wait } from "../test/wait";
+
+import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
+enableFetchMocks();
 
 type InitParams = Parameters<typeof prefab.init>[0];
 
@@ -10,23 +13,9 @@ beforeEach(() => {
 });
 
 describe("init", () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.runAllTimers();
-  });
-
   it("works when the request is successful", async () => {
     const data = { values: { turbo: { double: 2.5 } } };
-
-    FetchMock.mock(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(data),
-      })
-    );
+    fetchMock.mockResponse(JSON.stringify(data));
 
     const params: InitParams = {
       apiKey: "1234",
@@ -43,7 +32,7 @@ describe("init", () => {
   });
 
   it("returns falsy responses for flag checks if it cannot load config", async () => {
-    FetchMock.mock(() => Promise.reject(new Error("Network error")));
+    fetchMock.mockReject(new Error("Network error"));
 
     const params: InitParams = {
       apiKey: "1234",
@@ -64,13 +53,7 @@ describe("init", () => {
 
   it("allows passing a timeout down to the loader", async () => {
     const data = { values: { turbo: { double: 2.5 } } };
-
-    FetchMock.mock(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(data),
-      })
-    );
+    fetchMock.mockResponse(JSON.stringify(data));
 
     const config: InitParams = {
       apiKey: "1234",
@@ -86,6 +69,53 @@ describe("init", () => {
 
     await prefab.init(config);
     expect(prefab.loader?.timeout).toEqual(NEW_TIMEOUT);
+  });
+});
+
+describe("poll", () => {
+  it("takes a frequencyInMs and updates on that interval", async () => {
+    const data = { values: {} };
+    const frequencyInMs = 25;
+    fetchMock.mockResponse(JSON.stringify(data));
+
+    const config: InitParams = {
+      apiKey: "1234",
+      context: new Context({ user: { device: "desktop" } }),
+    };
+
+    await prefab.init(config);
+
+    if (!prefab.loader) {
+      throw new Error("Expected loader to be set");
+    }
+
+    await prefab.poll({ frequencyInMs });
+    expect(prefab.loader.context).toStrictEqual(prefab.context);
+    await wait(1);
+
+    if (prefab.pollStatus.status !== "running") {
+      throw new Error("Expected pollStatus to be running");
+    }
+    expect(prefab.pollCount).toEqual(0);
+    expect(prefab.loader.context).toStrictEqual(prefab.context);
+
+    await wait(frequencyInMs);
+    expect(prefab.pollCount).toEqual(1);
+    expect(prefab.loader.context).toStrictEqual(prefab.context);
+
+    // changing the context should set the context for the loader as well
+    const newContext = new Context({ abc: { def: "ghi" } });
+    prefab.context = newContext;
+
+    await wait(frequencyInMs);
+    expect(prefab.pollCount).toEqual(2);
+    expect(prefab.loader.context).toStrictEqual(newContext);
+
+    prefab.stopPolling();
+
+    // Polling does not continue after stopPolling is called
+    await wait(frequencyInMs * 2);
+    expect(prefab.pollCount).toEqual(2);
   });
 });
 

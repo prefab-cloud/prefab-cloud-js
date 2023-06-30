@@ -1,5 +1,5 @@
-import ConfigKey from './configKey';
-import ConfigValue from './configValue';
+import ConfigKey from "./configKey";
+import ConfigValue from "./configValue";
 
 export default class Config {
   key: ConfigKey;
@@ -14,18 +14,18 @@ export default class Config {
     this.type = type;
   }
 
-  static digest(rawValues: {[key: string]: any}) {
-    const configs = {} as {[key: string]: Config};
+  static digest(rawValues: { [key: string]: any }) {
+    const configs = {} as { [key: string]: Config };
 
     Object.keys(rawValues || {}).forEach((key) => {
       const value = rawValues[key];
 
-      if (typeof value === 'object') {
+      if (typeof value === "object") {
         const type = Object.keys(value)[0];
 
         configs[key] = new Config(key, value[type], type);
       } else {
-        configs[key] = new Config(key, value, 'unknown');
+        configs[key] = new Config(key, value, "unknown");
       }
     });
 

@@ -60,28 +60,7 @@ export const prefab = {
       timeout,
     });
 
-    return this.load();
-  },
-
-  async load() {
-    if (!this.loader || !this.context) {
-      throw new Error("Prefab not initialized. Call init() first.");
-    }
-
-    // make sure we have the freshest context
-    this.loader.context = this.context;
-
-    return this.loader
-      .load()
-      .then((rawValues: any) => {
-        this.setConfig(rawValues);
-        this.loaded = true;
-      })
-      .finally(() => {
-        if (this.pollStatus.status === "running") {
-          this.pollCount += 1;
-        }
-      });
+    return load();
   },
 
   async poll({ frequencyInMs }: { frequencyInMs: number }) {
@@ -96,24 +75,8 @@ export const prefab = {
     this.pollStatus = { status: "pending" };
 
     return this.loader.load().finally(() => {
-      this.doPolling({ frequencyInMs });
+      doPolling({ frequencyInMs });
     });
-  },
-
-  doPolling({ frequencyInMs }: { frequencyInMs: number }) {
-    const pollTimeoutId = setTimeout(() => {
-      this.load().finally(() => {
-        if (this.pollStatus.status === "running") {
-          this.doPolling({ frequencyInMs });
-        }
-      });
-    }, frequencyInMs);
-
-    this.pollStatus = {
-      status: "running",
-      frequencyInMs,
-      timeoutId: pollTimeoutId,
-    };
   },
 
   stopPolling() {
@@ -140,3 +103,40 @@ export const prefab = {
     return shouldLog({ ...args, get: this.get.bind(this) });
   },
 };
+
+async function load() {
+  if (!prefab.loader || !prefab.context) {
+    throw new Error("Prefab not initialized. Call init() first.");
+  }
+
+  // make sure we have the freshest context
+  prefab.loader.context = prefab.context;
+
+  return prefab.loader
+    .load()
+    .then((rawValues: any) => {
+      prefab.setConfig(rawValues);
+      prefab.loaded = true;
+    })
+    .finally(() => {
+      if (prefab.pollStatus.status === "running") {
+        prefab.pollCount += 1;
+      }
+    });
+}
+
+async function doPolling({ frequencyInMs }: { frequencyInMs: number }) {
+  const pollTimeoutId = setTimeout(() => {
+    load().finally(() => {
+      if (prefab.pollStatus.status === "running") {
+        doPolling({ frequencyInMs });
+      }
+    });
+  }, frequencyInMs);
+
+  prefab.pollStatus = {
+    status: "running",
+    frequencyInMs,
+    timeoutId: pollTimeoutId,
+  };
+}

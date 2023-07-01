@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Support polling via `prefab.poll({frequencyInMs})` (#16)
+
 ## 0.1.10 - 2023-06-27
 
 - Properly consider root logger (#11)

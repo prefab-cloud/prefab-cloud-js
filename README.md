@@ -35,14 +35,17 @@ setTimeout(ping, prefab.get('ping-delay'));
 
 Here's an explanation of each property
 
-| property    | example                        | purpose                                                                                      |
-| ----------- | ------------------------------ | -------------------------------------------------------------------------------------------- | --- |
-| `isEnabled` | `prefab.isEnabled("new-logo")` | returns a boolean (default `false`) if a feature is enabled based on the current context     |
-| `get`       | `prefab.get('retry-count')`    | returns the value of a flag or config evaluated in the current context                       |
-| `loaded`    | `if (prefab.loaded) { ... }`   | a boolean indicating whether prefab content has loaded                                       |
-| `shouldLog` | `if (prefab.shouldLog(...)) {` | returns a boolean indicating whether the proposed log level is valid for the current context |     |
+| property      | example                             | purpose                                                                                      |
+| ------------- | ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| `isEnabled`   | `prefab.isEnabled("new-logo")`      | returns a boolean (default `false`) if a feature is enabled based on the current context     |
+| `get`         | `prefab.get('retry-count')`         | returns the value of a flag or config evaluated in the current context                       |
+| `loaded`      | `if (prefab.loaded) { ... }`        | a boolean indicating whether prefab content has loaded                                       |
+| `shouldLog`   | `if (prefab.shouldLog(...)) {`      | returns a boolean indicating whether the proposed log level is valid for the current context |
+| `poll`        | `prefab.poll({frequencyInMs})`      | starts polling every `frequencyInMs` ms.                                                     |
+| `stopPolling` | `prefab.stopPolling()`              | stops the polling process                                                                    |
+| `context`     | `prefab.context = new Context(...)` | get or set the current context (after `init()`)                                              |
 
-## `shouldLog`
+## `shouldLog()`
 
 `shouldLog` allows you to implement dynamic logging. It takes the following properties:
 
@@ -69,6 +72,22 @@ if (shouldLog({ loggerName, desiredLevel, defaultLevel })) {
 ```
 
 If no log level value is configured in Prefab for "my.corp.widgets.modal" or higher in the hierarchy, then the `console.info` will not happen. If the value is configured and is INFO or more verbose, the `console.info` will happen.
+
+## `poll()`
+
+After `prefab.init()`, you can start polling. Polling uses the context you defined in `init` by default. You can update the context for future polling by setting it on the `prefab` object.
+
+```javascript
+// some time after init
+prefab.poll({frequencyInMs: 300000})
+
+// we're now polling with the context used from `init`
+
+// later, perhaps after a visitor logs in and now you have the context of their current user
+prefab.context = new Context({...prefab.context, user: { email: user.email, key: user.trackingId })
+
+// future polling will use the new context
+```
 
 ## Usage in your test suite
 

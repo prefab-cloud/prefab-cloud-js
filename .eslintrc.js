@@ -2,22 +2,45 @@ module.exports = {
   env: {
     browser: true,
     es2021: true,
-    "jest/globals": true,
+    jest: true,
   },
-  extends: ["airbnb-base"],
-  parser: "@typescript-eslint/parser",
+  extends: [
+    'airbnb',
+    'plugin:import/typescript',
+    'plugin:@typescript-eslint/recommended',
+    // Make sure this is always the last configuration in the extends array.
+    'prettier',
+  ],
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: "latest",
-    sourceType: "module",
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 'latest',
+    sourceType: 'module',
   },
-  plugins: ["@typescript-eslint", "jest"],
+  plugins: ['@typescript-eslint'],
   rules: {
-    "import/no-unresolved": "off",
-    "import/extensions": "off",
-    "import/prefer-default-export": "off",
-
-    // see https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-shadow.md
-    "no-shadow": "off",
-    "@typescript-eslint/no-shadow": ["error"],
+    'no-unused-vars': 'off', // this rule is incompatible with typescript-eslint's 'no-unused-vars
+    '@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
+    '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    'import/prefer-default-export': 'off',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        ts: 'never',
+        tsx: 'never',
+      },
+    ],
   },
+  overrides: [
+    {
+      files: ['*.test.ts', '*.test.tsx'],
+      rules: {
+        'import/no-extraneous-dependencies': 'off',
+      },
+    },
+  ],
 };

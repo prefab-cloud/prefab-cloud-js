@@ -1,9 +1,9 @@
-import Config from "./config";
-import ConfigValue from "./configValue";
-import Context from "./context";
-import Identity from "./identity";
-import Loader, { LoaderParams } from "./loader";
-import { shouldLog } from "./logger";
+import Config from './config';
+import ConfigValue from './configValue';
+import Context from './context';
+import Identity from './identity';
+import Loader, {LoaderParams} from './loader';
+import {shouldLog} from './logger';
 
 type InitParams = {
   apiKey: string;
@@ -14,17 +14,17 @@ type InitParams = {
 };
 
 type PollStatus =
-  | { status: "not-started" }
-  | { status: "pending" }
-  | { status: "stopped" }
+  | {status: 'not-started'}
+  | {status: 'pending'}
+  | {status: 'stopped'}
   | {
-      status: "running";
+      status: 'running';
       frequencyInMs: number;
       timeoutId: ReturnType<typeof setTimeout>;
     };
 
 export const prefab = {
-  configs: {} as { [key: string]: Config },
+  configs: {} as {[key: string]: Config},
 
   loaded: false as boolean,
 
@@ -32,9 +32,9 @@ export const prefab = {
 
   context: undefined as Context | undefined,
 
-  loaderParams: undefined as Omit<LoaderParams, "context"> | undefined,
+  loaderParams: undefined as Omit<LoaderParams, 'context'> | undefined,
 
-  pollStatus: { status: "not-started" } as PollStatus,
+  pollStatus: {status: 'not-started'} as PollStatus,
 
   pollCount: 0,
 
@@ -48,7 +48,7 @@ export const prefab = {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
     if (!context) {
-      throw new Error("Context must be provided");
+      throw new Error('Context must be provided');
     }
 
     this.context = context;
@@ -60,34 +60,36 @@ export const prefab = {
       timeout,
     });
 
+    // eslint-disable-next-line no-use-before-define
     return load();
   },
 
-  async poll({ frequencyInMs }: { frequencyInMs: number }) {
+  async poll({frequencyInMs}: {frequencyInMs: number}) {
     if (!this.loader) {
-      throw new Error("Prefab not initialized. Call init() first.");
+      throw new Error('Prefab not initialized. Call init() first.');
     }
 
-    if (this.pollStatus.status === "running") {
-      throw new Error("Already polling. Call stopPolling() first.");
+    if (this.pollStatus.status === 'running') {
+      throw new Error('Already polling. Call stopPolling() first.');
     }
 
-    this.pollStatus = { status: "pending" };
+    this.pollStatus = {status: 'pending'};
 
     return this.loader.load().finally(() => {
-      doPolling({ frequencyInMs });
+      // eslint-disable-next-line no-use-before-define
+      doPolling({frequencyInMs});
     });
   },
 
   stopPolling() {
-    if (this.pollStatus.status === "running") {
+    if (this.pollStatus.status === 'running') {
       clearInterval(this.pollStatus.timeoutId);
     }
 
-    this.pollStatus = { status: "stopped" };
+    this.pollStatus = {status: 'stopped'};
   },
 
-  setConfig(rawValues: { [key: string]: any }) {
+  setConfig(rawValues: {[key: string]: any}) {
     this.configs = Config.digest(rawValues);
   },
 
@@ -99,14 +101,14 @@ export const prefab = {
     return this.configs[key]?.value;
   },
 
-  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {
-    return shouldLog({ ...args, get: this.get.bind(this) });
+  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], 'get'>): boolean {
+    return shouldLog({...args, get: this.get.bind(this)});
   },
 };
 
 async function load() {
   if (!prefab.loader || !prefab.context) {
-    throw new Error("Prefab not initialized. Call init() first.");
+    throw new Error('Prefab not initialized. Call init() first.');
   }
 
   // make sure we have the freshest context
@@ -119,23 +121,23 @@ async function load() {
       prefab.loaded = true;
     })
     .finally(() => {
-      if (prefab.pollStatus.status === "running") {
+      if (prefab.pollStatus.status === 'running') {
         prefab.pollCount += 1;
       }
     });
 }
 
-async function doPolling({ frequencyInMs }: { frequencyInMs: number }) {
+async function doPolling({frequencyInMs}: {frequencyInMs: number}) {
   const pollTimeoutId = setTimeout(() => {
     load().finally(() => {
-      if (prefab.pollStatus.status === "running") {
-        doPolling({ frequencyInMs });
+      if (prefab.pollStatus.status === 'running') {
+        doPolling({frequencyInMs});
       }
     });
   }, frequencyInMs);
 
   prefab.pollStatus = {
-    status: "running",
+    status: 'running',
     frequencyInMs,
     timeoutId: pollTimeoutId,
   };

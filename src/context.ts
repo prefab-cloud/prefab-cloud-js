@@ -1,23 +1,23 @@
-import Key from "./key";
-import ConfigValue from "./configValue";
-import base64Encode from "./base64Encode";
+import Key from './key';
+import ConfigValue from './configValue';
+import base64Encode from './base64Encode';
 
-type Contexts = { [key: Key]: Record<string, ConfigValue> };
+type Contexts = {[key: Key]: Record<string, ConfigValue>};
 
 const getType = (value: ConfigValue) => {
-  if (typeof value === "string") {
-    return "string";
+  if (typeof value === 'string') {
+    return 'string';
   }
 
-  if (typeof value === "number") {
+  if (typeof value === 'number') {
     if (Number.isInteger(value)) {
-      return "int";
+      return 'int';
     }
 
-    return "double";
+    return 'double';
   }
 
-  return "bool";
+  return 'bool';
 };
 
 export default class Context {
@@ -31,7 +31,7 @@ export default class Context {
     const formatted = Object.keys(this.contexts).map((key) => {
       const values: Record<string, Record<string, ConfigValue>> = {};
 
-      Object.keys(this.contexts[key]).map((ckey) => {
+      Object.keys(this.contexts[key]).forEach((ckey) => {
         values[ckey] = {
           [getType(this.contexts[key][ckey])]: this.contexts[key][ckey],
         };
@@ -43,8 +43,6 @@ export default class Context {
       };
     });
 
-    return encodeURIComponent(
-      base64Encode(JSON.stringify({ contexts: formatted }))
-    );
+    return encodeURIComponent(base64Encode(JSON.stringify({contexts: formatted})));
   }
 }

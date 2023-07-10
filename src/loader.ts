@@ -4,7 +4,7 @@ import version from "./version";
 
 const headers = (apiKey: string) => ({
   Authorization: `Basic ${base64Encode(`u:${apiKey}`)}`,
-  "X-PrefabCloud-Client-Version": `prefab-cloud-js${version}`,
+  "X-PrefabCloud-Client-Version": `prefab-cloud-js-${version}`,
 });
 
 export const DEFAULT_TIMEOUT = 10000;

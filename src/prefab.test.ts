@@ -12,6 +12,11 @@ beforeEach(() => {
   prefab.configs = {};
 });
 
+afterEach(() => {
+  prefab.stopPolling();
+  prefab.pollCount = 0;
+});
+
 describe('init', () => {
   it('works when the request is successful', async () => {
     const data = {values: {turbo: {double: 2.5}}};
@@ -91,7 +96,6 @@ describe('poll', () => {
 
     await prefab.poll({frequencyInMs});
     expect(prefab.loader.context).toStrictEqual(prefab.context);
-    await wait(1);
 
     if (prefab.pollStatus.status !== 'running') {
       throw new Error('Expected pollStatus to be running');
@@ -116,6 +120,41 @@ describe('poll', () => {
     // Polling does not continue after stopPolling is called
     await wait(frequencyInMs * 2);
     expect(prefab.pollCount).toEqual(2);
+  });
+
+  it('is reset on init', async () => {
+    jest.spyOn(globalThis, 'clearTimeout');
+
+    const data = {values: {}};
+    const frequencyInMs = 25;
+    fetchMock.mockResponse(JSON.stringify(data));
+
+    const config: InitParams = {
+      apiKey: '1234',
+      context: new Context({user: {device: 'desktop'}}),
+    };
+
+    await prefab.init(config);
+
+    if (!prefab.loader) {
+      throw new Error('Expected loader to be set');
+    }
+
+    await prefab.poll({frequencyInMs});
+    expect(prefab.loader.context).toStrictEqual(prefab.context);
+
+    if (prefab.pollStatus.status !== 'running') {
+      throw new Error('Expected pollStatus to be running');
+    }
+    expect(prefab.pollCount).toEqual(0);
+    expect(prefab.loader.context).toStrictEqual(prefab.context);
+
+    const timeoutId = prefab.pollTimeoutId;
+
+    await prefab.init(config);
+    expect(prefab.pollStatus).toEqual({status: 'stopped'});
+    expect(clearTimeout).toHaveBeenCalledWith(timeoutId);
+    expect(prefab.pollTimeoutId).toBeUndefined();
   });
 });
 

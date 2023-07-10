@@ -17,11 +17,7 @@ type PollStatus =
   | {status: 'not-started'}
   | {status: 'pending'}
   | {status: 'stopped'}
-  | {
-      status: 'running';
-      frequencyInMs: number;
-      timeoutId: ReturnType<typeof setTimeout>;
-    };
+  | {status: 'running'; frequencyInMs: number};
 
 export const prefab = {
   configs: {} as {[key: string]: Config},
@@ -38,6 +34,8 @@ export const prefab = {
 
   pollCount: 0,
 
+  pollTimeoutId: undefined as ReturnType<typeof setTimeout> | undefined,
+
   async init({
     apiKey,
     context: providedContext,
@@ -49,6 +47,10 @@ export const prefab = {
 
     if (!context) {
       throw new Error('Context must be provided');
+    }
+
+    if (this.pollTimeoutId) {
+      this.stopPolling();
     }
 
     this.context = context;
@@ -82,8 +84,9 @@ export const prefab = {
   },
 
   stopPolling() {
-    if (this.pollStatus.status === 'running') {
-      clearInterval(this.pollStatus.timeoutId);
+    if (this.pollTimeoutId) {
+      clearTimeout(this.pollTimeoutId);
+      this.pollTimeoutId = undefined;
     }
 
     this.pollStatus = {status: 'stopped'};
@@ -128,7 +131,7 @@ async function load() {
 }
 
 async function doPolling({frequencyInMs}: {frequencyInMs: number}) {
-  const pollTimeoutId = setTimeout(() => {
+  prefab.pollTimeoutId = setTimeout(() => {
     load().finally(() => {
       if (prefab.pollStatus.status === 'running') {
         doPolling({frequencyInMs});
@@ -139,6 +142,5 @@ async function doPolling({frequencyInMs}: {frequencyInMs: number}) {
   prefab.pollStatus = {
     status: 'running',
     frequencyInMs,
-    timeoutId: pollTimeoutId,
   };
 }

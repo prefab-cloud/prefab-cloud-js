@@ -143,7 +143,7 @@ describe("load", () => {
         "Basic dTphcGlLZXk="
       );
       expect(requestHeaders.get("X-PrefabCloud-Client-Version")).toStrictEqual(
-        `prefab-cloud-js${version}`
+        `prefab-cloud-js-${version}`
       );
     });
 

@@ -49,10 +49,6 @@ export const prefab = {
       throw new Error('Context must be provided');
     }
 
-    if (this.pollTimeoutId || this.pollStatus.status === 'pending') {
-      this.stopPolling();
-    }
-
     this.context = context;
 
     this.loader = new Loader({
@@ -71,9 +67,7 @@ export const prefab = {
       throw new Error('Prefab not initialized. Call init() first.');
     }
 
-    if (this.pollStatus.status === 'running') {
-      throw new Error('Already polling. Call stopPolling() first.');
-    }
+    this.stopPolling();
 
     this.pollStatus = {status: 'pending'};
 

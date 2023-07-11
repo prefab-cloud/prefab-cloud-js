@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.14 - 2023-07-11
+
+- Call stopPolling() when calling poll() (#25)
+
 ## 0.1.13 - 2023-07-11
 
 - Fix bug with poll canceling (#23)

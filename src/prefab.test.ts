@@ -122,7 +122,7 @@ describe('poll', () => {
     expect(prefab.pollCount).toEqual(2);
   });
 
-  it('is reset on init', async () => {
+  it('is reset when you call poll() again', async () => {
     jest.spyOn(globalThis, 'clearTimeout');
 
     const data = {values: {}};
@@ -151,26 +151,9 @@ describe('poll', () => {
 
     const timeoutId = prefab.pollTimeoutId;
 
-    await prefab.init(config);
-    expect(prefab.pollStatus).toEqual({status: 'stopped'});
+    prefab.poll({frequencyInMs});
     expect(clearTimeout).toHaveBeenCalledWith(timeoutId);
     expect(prefab.pollTimeoutId).toBeUndefined();
-  });
-
-  it("resets on init if the polling hasn't actually started yet", async () => {
-    const data = {values: {}};
-    fetchMock.mockResponse(JSON.stringify(data));
-
-    const config: InitParams = {
-      apiKey: '1234',
-      context: new Context({user: {device: 'desktop'}}),
-    };
-
-    await prefab.init(config);
-
-    prefab.pollStatus = {status: 'pending'};
-    await prefab.init(config);
-    expect(prefab.pollStatus).toEqual({status: 'stopped'});
   });
 });
 

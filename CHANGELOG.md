@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.12 - 2023-07-11
+
+- Reset polling on init (#21)
 
 ## 0.1.11 - 2023-07-03
 

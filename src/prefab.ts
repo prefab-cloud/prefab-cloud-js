@@ -49,7 +49,7 @@ export const prefab = {
       throw new Error('Context must be provided');
     }
 
-    if (this.pollTimeoutId) {
+    if (this.pollTimeoutId || this.pollStatus.status === 'pending') {
       this.stopPolling();
     }
 

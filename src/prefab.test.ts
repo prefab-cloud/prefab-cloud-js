@@ -156,6 +156,22 @@ describe('poll', () => {
     expect(clearTimeout).toHaveBeenCalledWith(timeoutId);
     expect(prefab.pollTimeoutId).toBeUndefined();
   });
+
+  it("resets on init if the polling hasn't actually started yet", async () => {
+    const data = {values: {}};
+    fetchMock.mockResponse(JSON.stringify(data));
+
+    const config: InitParams = {
+      apiKey: '1234',
+      context: new Context({user: {device: 'desktop'}}),
+    };
+
+    await prefab.init(config);
+
+    prefab.pollStatus = {status: 'pending'};
+    await prefab.init(config);
+    expect(prefab.pollStatus).toEqual({status: 'stopped'});
+  });
 });
 
 describe('setConfig', () => {

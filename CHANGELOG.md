@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.13 - 2023-07-11
+
+- Fix bug with poll canceling (#23)
+
 ## 0.1.12 - 2023-07-11
 
 - Reset polling on init (#21)

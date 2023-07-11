@@ -34,9 +34,9 @@
     "prepare": "husky install",
     "prettier": "prettier . -l",
     "prettier:fix": "npm run prettier --write",
-    "release": "npm run test && rm -rf dist/test/ dist/jest.config.js dist/src/*.test.js",
+    "release": "npm run prettier:fix; npm run lint:fix; npm run test",
     "test": "npm run build && jest --verbose dist/",
-    "version": "echo 'version' && npm run release && git add src/version.ts"
+    "version": "echo 'version' && npm run release && npm run prettier:fix; git add src/version.ts"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,7 @@
+coverage
+build.sh
+dist/test/
+dist/src/*.test.js
+dist/jest.config.js
+test/
+.github/

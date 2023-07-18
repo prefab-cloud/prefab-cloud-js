@@ -2,6 +2,13 @@ coverage
 build.sh
 dist/test/
 dist/src/*.test.js
+dist/src/*.test.d.ts
 dist/jest.config.js
+tsconfig.tsbuildinfo
 test/
 .github/
+.eslintrc.js
+.husky/pre-commit
+.prettierignore
+.prettierrc
+.tool-versions

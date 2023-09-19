@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.15 - 2023-09-19
+
+- Add support for a `trackEvaluation` callback for forwarding evaluation events to analytics tools,
+  etc.
+
 ## 0.1.14 - 2023-07-11
 
 - Call stopPolling() when calling poll() (#25)

@@ -39,7 +39,7 @@ export const prefab = {
 
   pollTimeoutId: undefined as ReturnType<typeof setTimeout> | undefined,
 
-  trackEvaluation: undefined as EvaluationCallback | undefined,
+  trackEvaluation: (() => {}) as EvaluationCallback,
 
   async init({
     apiKey,
@@ -47,7 +47,7 @@ export const prefab = {
     identity,
     endpoints = undefined,
     timeout = undefined,
-    trackEvaluation = undefined,
+    trackEvaluation = () => {},
   }: InitParams) {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
@@ -101,18 +101,15 @@ export const prefab = {
   isEnabled(key: string): boolean {
     const value = this.get(key) === true;
 
-    if (this.trackEvaluation) {
-      this.trackEvaluation(key, value, this.context);
-    }
+    this.trackEvaluation(key, value, this.context);
+
     return value;
   },
 
   get(key: string): ConfigValue {
     const value = this.configs[key]?.value;
 
-    if (this.trackEvaluation) {
-      this.trackEvaluation(key, value, this.context);
-    }
+    this.trackEvaluation(key, value, this.context);
 
     return value;
   },

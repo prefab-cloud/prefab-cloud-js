@@ -5,12 +5,15 @@ import Identity from './identity';
 import Loader, {LoaderParams} from './loader';
 import {shouldLog} from './logger';
 
+type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
+
 type InitParams = {
   apiKey: string;
   identity?: Identity;
   context?: Context;
   endpoints?: string[] | undefined;
   timeout?: number;
+  trackEvaluation?: EvaluationCallback;
 };
 
 type PollStatus =
@@ -36,12 +39,15 @@ export const prefab = {
 
   pollTimeoutId: undefined as ReturnType<typeof setTimeout> | undefined,
 
+  trackEvaluation: undefined as EvaluationCallback | undefined,
+
   async init({
     apiKey,
     context: providedContext,
     identity,
     endpoints = undefined,
     timeout = undefined,
+    trackEvaluation = undefined,
   }: InitParams) {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
@@ -57,6 +63,8 @@ export const prefab = {
       endpoints,
       timeout,
     });
+
+    this.trackEvaluation = trackEvaluation;
 
     // eslint-disable-next-line no-use-before-define
     return load();
@@ -91,11 +99,22 @@ export const prefab = {
   },
 
   isEnabled(key: string): boolean {
-    return this.get(key) === true;
+    const value = this.get(key) === true;
+
+    if (this.trackEvaluation) {
+      this.trackEvaluation(key, value, this.context);
+    }
+    return value;
   },
 
   get(key: string): ConfigValue {
-    return this.configs[key]?.value;
+    const value = this.configs[key]?.value;
+
+    if (this.trackEvaluation) {
+      this.trackEvaluation(key, value, this.context);
+    }
+
+    return value;
   },
 
   shouldLog(args: Omit<Parameters<typeof shouldLog>[0], 'get'>): boolean {

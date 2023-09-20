@@ -8,6 +8,7 @@ const exampleContext = new Context({
 });
 
 const waitForAsyncCall = async () => {
+  // eslint-disable-next-line no-promise-executor-return
   await new Promise((r) => setTimeout(r, 1));
 };
 

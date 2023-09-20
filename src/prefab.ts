@@ -99,9 +99,7 @@ export const prefab = {
   },
 
   isEnabled(key: string): boolean {
-    const value = this.get(key) === true;
-
-    return value;
+    return this.get(key) === true;
   },
 
   get(key: string): ConfigValue {

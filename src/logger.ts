@@ -1,6 +1,6 @@
 import ConfigValue from './configValue';
 
-export const PREFIX = 'log-level.';
+export const PREFIX = 'log-level';
 
 const WORD_LEVEL_LOOKUP: Readonly<Record<string, number>> = {
   TRACE: 1,
@@ -22,7 +22,7 @@ export const shouldLog = ({
   defaultLevel: string;
   get: (key: string) => ConfigValue;
 }): boolean => {
-  let loggerNameWithPrefix = PREFIX + loggerName;
+  let loggerNameWithPrefix = `${PREFIX}.${loggerName}`;
   const desiredLevelNumber = WORD_LEVEL_LOOKUP[desiredLevel.toUpperCase()];
 
   while (loggerNameWithPrefix.length > 0) {

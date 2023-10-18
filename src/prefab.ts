@@ -1,9 +1,13 @@
-import Config from './config';
-import ConfigValue from './configValue';
-import Context from './context';
-import Identity from './identity';
-import Loader, {LoaderParams} from './loader';
-import {shouldLog} from './logger';
+import { v4 as uuid } from "uuid";
+
+import { Config } from "./config";
+import ConfigValue from "./configValue";
+import Context from "./context";
+import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
+import Identity from "./identity";
+import Loader, { LoaderParams } from "./loader";
+import { PREFIX as loggerPrefix, shouldLog } from "./logger";
+import TelemetryUploader from "./telemetryUploader";
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
 
@@ -12,32 +16,42 @@ type InitParams = {
   identity?: Identity;
   context?: Context;
   endpoints?: string[] | undefined;
+  apiEndpoint?: string;
   timeout?: number;
   afterEvaluationCallback?: EvaluationCallback;
+  collectEvaluationSummaries?: boolean;
 };
 
 type PollStatus =
-  | {status: 'not-started'}
-  | {status: 'pending'}
-  | {status: 'stopped'}
-  | {status: 'running'; frequencyInMs: number};
+  | { status: "not-started" }
+  | { status: "pending" }
+  | { status: "stopped" }
+  | { status: "running"; frequencyInMs: number };
 
 export const prefab = {
-  configs: {} as {[key: string]: Config},
+  configs: {} as { [key: string]: Config },
 
   loaded: false as boolean,
 
   loader: undefined as Loader | undefined,
 
+  telemetryUploader: undefined as TelemetryUploader | undefined,
+
   context: undefined as Context | undefined,
 
-  loaderParams: undefined as Omit<LoaderParams, 'context'> | undefined,
+  loaderParams: undefined as Omit<LoaderParams, "context"> | undefined,
 
-  pollStatus: {status: 'not-started'} as PollStatus,
+  pollStatus: { status: "not-started" } as PollStatus,
 
   pollCount: 0,
 
   pollTimeoutId: undefined as ReturnType<typeof setTimeout> | undefined,
+
+  instanceHash: uuid(),
+
+  collectEvaluationSummaries: false as boolean,
+
+  evalutionSummaryAggregator: undefined as EvaluationSummaryAggregator | undefined,
 
   afterEvaluationCallback: (() => {}) as EvaluationCallback,
 
@@ -46,13 +60,15 @@ export const prefab = {
     context: providedContext,
     identity,
     endpoints = undefined,
+    apiEndpoint,
     timeout = undefined,
     afterEvaluationCallback = () => {},
+    collectEvaluationSummaries = false,
   }: InitParams) {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
     if (!context) {
-      throw new Error('Context must be provided');
+      throw new Error("Context must be provided");
     }
 
     this.context = context;
@@ -61,8 +77,17 @@ export const prefab = {
       apiKey,
       context,
       endpoints,
+      apiEndpoint,
       timeout,
     });
+
+    this.telemetryUploader = new TelemetryUploader({ apiKey, apiEndpoint, timeout });
+
+    this.collectEvaluationSummaries = collectEvaluationSummaries;
+
+    if (collectEvaluationSummaries) {
+      this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this, 100000);
+    }
 
     this.afterEvaluationCallback = afterEvaluationCallback;
 
@@ -70,18 +95,18 @@ export const prefab = {
     return load();
   },
 
-  async poll({frequencyInMs}: {frequencyInMs: number}) {
+  async poll({ frequencyInMs }: { frequencyInMs: number }) {
     if (!this.loader) {
-      throw new Error('Prefab not initialized. Call init() first.');
+      throw new Error("Prefab not initialized. Call init() first.");
     }
 
     this.stopPolling();
 
-    this.pollStatus = {status: 'pending'};
+    this.pollStatus = { status: "pending" };
 
     return this.loader.load().finally(() => {
       // eslint-disable-next-line no-use-before-define
-      doPolling({frequencyInMs});
+      doPolling({ frequencyInMs });
     });
   },
 
@@ -91,10 +116,10 @@ export const prefab = {
       this.pollTimeoutId = undefined;
     }
 
-    this.pollStatus = {status: 'stopped'};
+    this.pollStatus = { status: "stopped" };
   },
 
-  setConfig(rawValues: {[key: string]: any}) {
+  setConfig(rawValues: { [key: string]: any }) {
     this.configs = Config.digest(rawValues);
   },
 
@@ -103,21 +128,28 @@ export const prefab = {
   },
 
   get(key: string): ConfigValue {
-    const value = this.configs[key]?.value;
+    const config = this.configs[key];
+    const value = config?.value;
 
-    setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+    if (!key.startsWith(loggerPrefix)) {
+      if (this.collectEvaluationSummaries) {
+        setTimeout(() => this.evalutionSummaryAggregator?.record(config));
+      }
+
+      setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+    }
 
     return value;
   },
 
-  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], 'get'>): boolean {
-    return shouldLog({...args, get: this.get.bind(this)});
+  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {
+    return shouldLog({ ...args, get: this.get.bind(this) });
   },
 };
 
 async function load() {
   if (!prefab.loader || !prefab.context) {
-    throw new Error('Prefab not initialized. Call init() first.');
+    throw new Error("Prefab not initialized. Call init() first.");
   }
 
   // make sure we have the freshest context
@@ -130,23 +162,23 @@ async function load() {
       prefab.loaded = true;
     })
     .finally(() => {
-      if (prefab.pollStatus.status === 'running') {
+      if (prefab.pollStatus.status === "running") {
         prefab.pollCount += 1;
       }
     });
 }
 
-async function doPolling({frequencyInMs}: {frequencyInMs: number}) {
+async function doPolling({ frequencyInMs }: { frequencyInMs: number }) {
   prefab.pollTimeoutId = setTimeout(() => {
     load().finally(() => {
-      if (prefab.pollStatus.status === 'running') {
-        doPolling({frequencyInMs});
+      if (prefab.pollStatus.status === "running") {
+        doPolling({ frequencyInMs });
       }
     });
   }, frequencyInMs);
 
   prefab.pollStatus = {
-    status: 'running',
+    status: "running",
     frequencyInMs,
   };
 }

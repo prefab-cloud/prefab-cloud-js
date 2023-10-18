@@ -33,9 +33,9 @@ abstract class PeriodicSync<T> {
     this.flush(this.prepareData(), startAtWas);
   }
 
-  protected abstract flush(toShip: any[], startAtWas: Date): void;
+  protected abstract flush(toShip: Map<string, T>, startAtWas: Date): void;
 
-  private prepareData(): any {
+  private prepareData(): Map<string, T> {
     const toShip = new Map(this.data);
     this.data.clear();
 
@@ -61,7 +61,7 @@ abstract class PeriodicSync<T> {
 
     // TODO: i don't think this works the same way as ruby...syncInterval is only going to get called once and so won't backoff properly
     setInterval(() => {
-      console.log(`Initialized ${this.name} instance_hash=${this.instanceHash}`);
+      // console.log(`Initialized ${this.name} instance_hash=${this.instanceHash}`);
       this.sync();
     }, this.syncInterval());
   }

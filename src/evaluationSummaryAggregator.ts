@@ -72,9 +72,9 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     }
   }
 
-  protected flush(toShip: any[], startAtWas: Date): void {
+  protected flush(toShip: Map<string, ConfigEvaluationCounter>, startAtWas: Date): void {
     // Not sure about threading in TS for this, so ignoring for now
-    console.log(`Flushing ${toShip.length} summaries`);
+    console.log(`Flushing ${toShip.keys.length} summaries`);
 
     const summariesProto = {
       start: startAtWas,
@@ -98,8 +98,8 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   //   });
   // }
 
-  private static summaries(data: any): ConfigEvaluationSummary[] {
-    return data.map((entry: [string, Map<string, number>]) => {
+  private static summaries(data: Map<string, ConfigEvaluationCounter>): ConfigEvaluationSummary[] {
+    return Array.from(data).map((entry: [string, ConfigEvaluationCounter]) => {
       const [configKey, configType] = entry[0].split(',');
       const counter = entry[1];
       const counterProtos = [counter];

@@ -1,4 +1,5 @@
 import {ExponentialBackoff} from './exponentialBackoff';
+import Loader from './loader';
 // import {Logger} from '...'; // Assuming the path for Logger if it exists in TypeScript
 
 abstract class PeriodicSync<T> {
@@ -10,11 +11,14 @@ abstract class PeriodicSync<T> {
 
   protected instanceHash: string;
 
+  protected loader: Loader;
+
   private name: string;
 
-  constructor(instanceHash: string, name: string) {
+  constructor(instanceHash: string, loader: Loader, name: string) {
     this.startAt = new Date();
     this.instanceHash = instanceHash;
+    this.loader = loader;
     this.name = name;
   }
 
@@ -44,12 +48,12 @@ abstract class PeriodicSync<T> {
   //   // noop -- override as you wish
   // }
 
-  post(url: string, data: any): any {
-    console.log(this.instanceHash);
-    console.log(url);
-    console.log(data);
-    // return this.client.post(url, data);
-  }
+  // post(url: string, data: any): any {
+  //   console.log(this.instanceHash);
+  //   console.log(url);
+  //   console.log(data);
+  //   // return this.client.post(url, data);
+  // }
 
   startPeriodicSync(syncInterval: any): void {
     this.startAt = new Date();

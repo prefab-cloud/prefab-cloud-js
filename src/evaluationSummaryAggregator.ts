@@ -16,6 +16,7 @@
 
 import {PeriodicSync} from './periodicSync';
 import Config from './config';
+import Loader from './loader';
 
 type ConfigEvaluationCounter = {
   count: number;
@@ -45,11 +46,13 @@ type TelemetryEvents = {
 class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> {
   private maxKeys: number;
 
-  constructor(instanceHash: string, maxKeys: number, syncInterval?: number) {
-    super(instanceHash, 'evaluation_summary_aggregator');
+  constructor(instanceHash: string, loader: Loader, maxKeys: number, syncInterval?: number) {
+    super(instanceHash, loader, 'evaluation_summary_aggregator');
 
     this.maxKeys = maxKeys;
     this.startPeriodicSync(syncInterval);
+
+    console.log('Constructing evaluation summary aggregator');
   }
 
   record(config: Config): void {
@@ -79,8 +82,8 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    const result = this.post('/api/v1/telemetry', this.events(summariesProto));
-    console.log(`Uploaded ${toShip.length} summaries: ${result.status}`);
+    this.loader.post(this.events(summariesProto));
+    // console.log(`Uploaded ${toShip.length} summaries: ${result.status}`);
   }
 
   // private counterProto(counter: any, count: number): ConfigEvaluationCounter {

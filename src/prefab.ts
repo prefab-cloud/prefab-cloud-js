@@ -1,6 +1,9 @@
+import {v4 as uuid} from 'uuid';
+
 import Config from './config';
 import ConfigValue from './configValue';
 import Context from './context';
+import {EvaluationSummaryAggregator} from './evaluationSummaryAggregator';
 import Identity from './identity';
 import Loader, {LoaderParams} from './loader';
 import {shouldLog} from './logger';
@@ -39,6 +42,10 @@ export const prefab = {
 
   pollTimeoutId: undefined as ReturnType<typeof setTimeout> | undefined,
 
+  instanceHash: uuid(),
+
+  evalutionSummaryAggregator: undefined as EvaluationSummaryAggregator | undefined,
+
   afterEvaluationCallback: (() => {}) as EvaluationCallback,
 
   async init({
@@ -63,6 +70,8 @@ export const prefab = {
       endpoints,
       timeout,
     });
+
+    this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this.instanceHash, 100000);
 
     this.afterEvaluationCallback = afterEvaluationCallback;
 
@@ -103,7 +112,10 @@ export const prefab = {
   },
 
   get(key: string): ConfigValue {
-    const value = this.configs[key]?.value;
+    const config = this.configs[key];
+    const value = config?.value;
+
+    setTimeout(() => this.evalutionSummaryAggregator?.record(config));
 
     setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
 

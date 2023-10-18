@@ -29,8 +29,8 @@ type ConfigEvaluationSummary = {
 };
 
 type ConfigEvaluationSummaries = {
-  start: Date;
-  end: Date;
+  start: number;
+  end: number;
   summaries: ConfigEvaluationSummary[];
 };
 
@@ -77,8 +77,8 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     console.log(`Flushing ${toShip.keys.length} summaries`);
 
     const summariesProto = {
-      start: startAtWas,
-      end: new Date(), // Assuming this replaces Prefab::TimeHelpers.now_in_ms
+      start: startAtWas.getTime(),
+      end: new Date().getTime(),
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 

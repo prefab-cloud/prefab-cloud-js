@@ -1,14 +1,4 @@
-// initialize temporary store
-
-// initialize timer for flushing
-
-// initialize triggers to flush on unload, etc
-
-// method to record eval
-
-// internal method to send evals to endpoint
-
-// exponential backoff
+// initialize triggers to flush on beforeunload
 
 // retries
 
@@ -39,7 +29,7 @@ type TelemetryEvent = {
 };
 
 type TelemetryEvents = {
-  instance_hash: string; // other type?
+  instance_hash: string;
   events: TelemetryEvent[];
 };
 
@@ -72,44 +62,28 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   }
 
   protected flush(toShip: Map<string, ConfigEvaluationCounter>, startAtWas: Date): void {
-    // Not sure about threading in TS for this, so ignoring for now
     console.log(`Flushing ${toShip.size} summaries`);
 
-    const summariesProto = {
+    const summaries = {
       start: startAtWas.getTime(),
       end: new Date().getTime(),
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.loader.post(this.events(summariesProto));
+    this.loader.post(this.events(summaries));
     // console.log(`Uploaded ${toShip.length} summaries: ${result.status}`);
   }
-
-  // private counterProto(counter: any, count: number): ConfigEvaluationCounter {
-  //   return new ConfigEvaluationCounter({
-  //     config_id: counter.config_id,
-  //     selected_index: counter.selected_index,
-  //     config_row_index: counter.config_row_index,
-  //     conditional_value_index: counter.conditional_value_index,
-  //     weighted_value_index: counter.weighted_value_index,
-  //     selected_value: counter.selected_value,
-  //     count: count,
-  //   });
-  // }
 
   private static summaries(data: Map<string, ConfigEvaluationCounter>): ConfigEvaluationSummary[] {
     return Array.from(data).map((entry: [string, ConfigEvaluationCounter]) => {
       const [configKey, configType] = entry[0].split(',');
       const counter = entry[1];
-      const counterProtos = [counter];
-      // const counterProtos = Array.from(counters.entries()).map(([counter, count]) =>
-      //   this.counterProto(counter, count)
-      // );
+      const counters = [counter]; // this client only ever has one set of counter info per key
 
       return {
         key: configKey,
         type: configType,
-        counters: counterProtos,
+        counters,
       };
     });
   }

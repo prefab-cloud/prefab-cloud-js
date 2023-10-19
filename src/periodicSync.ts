@@ -16,7 +16,7 @@ abstract class PeriodicSync<T> {
 
   private nextSyncTimeout: NodeJS.Timeout | null = null;
 
-  constructor(instanceHash: string, loader: Loader, name: string, syncInterval: number) {
+  constructor(instanceHash: string, loader: Loader, name: string, syncInterval?: number) {
     this.startAt = new Date();
     this.instanceHash = instanceHash;
     this.loader = loader;
@@ -42,16 +42,10 @@ abstract class PeriodicSync<T> {
     const toShip = new Map(this.data);
     this.data.clear();
 
-    // this.onPrepareData();
-
     return toShip;
   }
 
-  // protected onPrepareData(): void {
-  //   // noop -- override as you wish
-  // }
-
-  private startPeriodicSync(syncInterval: any): void {
+  private startPeriodicSync(syncInterval?: number): void {
     this.startAt = new Date();
     this.syncInterval = PeriodicSync.calculateSyncInterval(syncInterval);
 
@@ -69,12 +63,12 @@ abstract class PeriodicSync<T> {
     }, interval);
   }
 
-  private static calculateSyncInterval(syncInterval: any): any {
-    if (typeof syncInterval === 'number') {
+  private static calculateSyncInterval(syncInterval?: number): any {
+    if (syncInterval !== undefined) {
       return () => syncInterval;
     }
 
-    const backoff = syncInterval || new ExponentialBackoff(60 * 5);
+    const backoff = new ExponentialBackoff(60 * 5);
     return () => backoff.call();
   }
 

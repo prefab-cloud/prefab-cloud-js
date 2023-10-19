@@ -1,6 +1,5 @@
 import {ExponentialBackoff} from './exponentialBackoff';
 import Loader from './loader';
-// import {Logger} from '...'; // Assuming the path for Logger if it exists in TypeScript
 
 abstract class PeriodicSync<T> {
   protected data: Map<string, T> = new Map();
@@ -15,11 +14,15 @@ abstract class PeriodicSync<T> {
 
   private name: string;
 
-  constructor(instanceHash: string, loader: Loader, name: string) {
+  private nextSyncTimeout: NodeJS.Timeout | null = null;
+
+  constructor(instanceHash: string, loader: Loader, name: string, syncInterval: number) {
     this.startAt = new Date();
     this.instanceHash = instanceHash;
     this.loader = loader;
     this.name = name;
+
+    this.startPeriodicSync(syncInterval);
   }
 
   sync(): void {
@@ -48,31 +51,23 @@ abstract class PeriodicSync<T> {
   //   // noop -- override as you wish
   // }
 
-  // post(url: string, data: any): any {
-  //   console.log(this.instanceHash);
-  //   console.log(url);
-  //   console.log(data);
-  //   // return this.client.post(url, data);
-  // }
-
-  startPeriodicSync(syncInterval: any): void {
+  private startPeriodicSync(syncInterval: any): void {
     this.startAt = new Date();
     this.syncInterval = PeriodicSync.calculateSyncInterval(syncInterval);
 
-    // TODO: i don't think this works the same way as ruby...syncInterval is only going to get called once and so won't backoff properly
-    setInterval(() => {
-      // console.log(`Initialized ${this.name} instance_hash=${this.instanceHash}`);
+    this.scheduleNextSync();
+  }
+
+  private scheduleNextSync() {
+    const interval = this.syncInterval();
+    console.log(
+      `Scheduled next sync in ${interval} ms for ${this.name} instance_hash=${this.instanceHash}`
+    );
+    this.nextSyncTimeout = setTimeout(() => {
       this.sync();
-    }, this.syncInterval());
+      this.scheduleNextSync(); // Schedule the next sync after the current one completes
+    }, interval);
   }
-
-  private static logInternal(message: string): void {
-    // this.client.log.logInternal(message, this.name, null, Logger.DEBUG);
-    console.log(message);
-    // TODO: pass in prefab shouldLog
-  }
-
-  // Ignoring pool method as JavaScript doesn't have the same concurrency model
 
   private static calculateSyncInterval(syncInterval: any): any {
     if (typeof syncInterval === 'number') {
@@ -81,6 +76,12 @@ abstract class PeriodicSync<T> {
 
     const backoff = syncInterval || new ExponentialBackoff(60 * 5);
     return () => backoff.call();
+  }
+
+  private static logInternal(message: string): void {
+    // this.client.log.logInternal(message, this.name, null, Logger.DEBUG);
+    console.log(message);
+    // TODO: pass in prefab shouldLog
   }
 }
 

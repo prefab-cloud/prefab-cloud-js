@@ -47,10 +47,9 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   private maxKeys: number;
 
   constructor(instanceHash: string, loader: Loader, maxKeys: number, syncInterval?: number) {
-    super(instanceHash, loader, 'evaluation_summary_aggregator');
+    super(instanceHash, loader, 'evaluation_summary_aggregator', syncInterval);
 
     this.maxKeys = maxKeys;
-    this.startPeriodicSync(syncInterval);
 
     console.log('Constructing evaluation summary aggregator');
   }
@@ -74,7 +73,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
 
   protected flush(toShip: Map<string, ConfigEvaluationCounter>, startAtWas: Date): void {
     // Not sure about threading in TS for this, so ignoring for now
-    console.log(`Flushing ${toShip.keys.length} summaries`);
+    console.log(`Flushing ${toShip.size} summaries`);
 
     const summariesProto = {
       start: startAtWas.getTime(),

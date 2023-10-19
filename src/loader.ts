@@ -109,7 +109,7 @@ export default class Loader {
     const signal = controller?.signal;
 
     const endpoint = this.endpoints[index];
-    const url = Loader.postUrl(endpoint);
+    const url = Loader.postUrl('https:/api.catfood.staging-prefab.cloud');
 
     fetch(url, {signal, ...options})
       .then((response) => {
@@ -148,7 +148,9 @@ export default class Loader {
         ...headers(this.apiKey),
         'Access-Control-Allow-Methods': 'GET, POST',
         'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify(data),
     };
 
     const promise = new Promise((resolve, reject) => {

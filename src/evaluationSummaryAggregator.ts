@@ -6,11 +6,13 @@
 
 // flush when we receive a config update (or as a result of a context update...but that should trigger a config update anyway)
 
+// client option to disable telemetry?
+
 import {PeriodicSync} from './periodicSync';
-import Config from './config';
+import {Config, ConfigEvaluationMetadata} from './config';
 import Loader from './loader';
 
-type ConfigEvaluationCounter = {
+type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, 'type'> & {
   count: number;
 };
 
@@ -47,12 +49,13 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   record(config: Config): void {
     if (this.data.size >= this.maxKeys) return;
 
-    const key = `${config.key},${config.type}`;
+    const key = `${config.key},${config.configEvaluationMetadata.type}`;
+    const {type, ...metadata} = config.configEvaluationMetadata;
 
     // create counter entry if it doesn't exist
     if (!this.data.has(key)) {
       // TODO: add rule match metadata from config
-      this.data.set(key, {count: 0});
+      this.data.set(key, {...metadata, count: 0});
     }
 
     // increment count
@@ -71,7 +74,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.loader.post(this.events(summaries));
+    this.loader.post({telemetryEvents: this.events(summaries)});
     // TODO: log result of post?
     // console.log(`Uploaded ${toShip.length} summaries: ${result.status}`);
   }

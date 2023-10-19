@@ -1,6 +1,6 @@
 import {v4 as uuid} from 'uuid';
 
-import Config from './config';
+import {Config} from './config';
 import ConfigValue from './configValue';
 import Context from './context';
 import {EvaluationSummaryAggregator} from './evaluationSummaryAggregator';

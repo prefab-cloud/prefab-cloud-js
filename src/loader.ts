@@ -149,6 +149,7 @@ export default class Loader {
         'Access-Control-Allow-Methods': 'GET, POST',
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
       body: JSON.stringify(data),
     };

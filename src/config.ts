@@ -37,12 +37,25 @@ export class Config {
       if (typeof value === 'object') {
         const type = Object.keys(value)[0];
 
-        configs[key] = new Config(key, value[type], type, value.configEvaluationMetadata);
+        configs[key] = new Config(
+          key,
+          value[type],
+          type,
+          this.parseRawMetadata(value.configEvaluationMetadata)
+        );
       } else {
         configs[key] = new Config(key, value, 'unknown');
       }
     });
 
     return configs;
+  }
+
+  static parseRawMetadata(metadata: any) {
+    return {
+      configRowIndex: parseInt(metadata.configRowIndex),
+      conditionalValueIndex: parseInt(metadata.conditionalValueIndex),
+      type: metadata.type,
+    };
   }
 }

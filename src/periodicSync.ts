@@ -14,13 +14,14 @@ abstract class PeriodicSync<T> {
 
   private name: string;
 
-  private nextSyncTimeout: NodeJS.Timeout | null = null;
+  // private nextSyncTimeout: NodeJS.Timeout | null = null;
 
   constructor(instanceHash: string, loader: Loader, name: string, syncInterval?: number) {
-    this.startAt = new Date();
     this.instanceHash = instanceHash;
     this.loader = loader;
     this.name = name;
+
+    this.startAt = new Date();
 
     this.startPeriodicSync(syncInterval);
   }
@@ -57,7 +58,7 @@ abstract class PeriodicSync<T> {
     console.log(
       `Scheduled next sync in ${interval} ms for ${this.name} instance_hash=${this.instanceHash}`
     );
-    this.nextSyncTimeout = setTimeout(() => {
+    setTimeout(() => {
       this.sync();
       this.scheduleNextSync(); // Schedule the next sync after the current one completes
     }, interval);

@@ -5,8 +5,6 @@ import version from './version';
 const headers = (apiKey: string) => ({
   Authorization: `Basic ${base64Encode(`u:${apiKey}`)}`,
   'X-PrefabCloud-Client-Version': `prefab-cloud-js-${version}`,
-  'Access-Control-Allow-Methods': 'GET, POST',
-  'Access-Control-Allow-Origin': '*',
 });
 
 export const DEFAULT_TIMEOUT = 10000;
@@ -144,7 +142,14 @@ export default class Loader {
     console.log('Posting data:');
     console.log(JSON.stringify(data));
 
-    const options = {method: 'POST', headers: headers(this.apiKey)};
+    const options = {
+      method: 'POST',
+      headers: {
+        ...headers(this.apiKey),
+        'Access-Control-Allow-Methods': 'GET, POST',
+        'Access-Control-Allow-Origin': '*',
+      },
+    };
 
     const promise = new Promise((resolve, reject) => {
       this.postToEndpoint(0, options, data, resolve, reject);

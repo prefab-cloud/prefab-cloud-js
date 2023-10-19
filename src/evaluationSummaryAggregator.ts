@@ -2,6 +2,8 @@
 
 // retries
 
+// pause when offline?
+
 // flush when we receive a config update (or as a result of a context update...but that should trigger a config update anyway)
 
 import {PeriodicSync} from './periodicSync';
@@ -40,8 +42,6 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     super(instanceHash, loader, 'evaluation_summary_aggregator', syncInterval);
 
     this.maxKeys = maxKeys;
-
-    console.log('Constructing evaluation summary aggregator');
   }
 
   record(config: Config): void {
@@ -51,6 +51,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
 
     // create counter entry if it doesn't exist
     if (!this.data.has(key)) {
+      // TODO: add rule match metadata from config
       this.data.set(key, {count: 0});
     }
 
@@ -71,6 +72,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     };
 
     this.loader.post(this.events(summaries));
+    // TODO: log result of post?
     // console.log(`Uploaded ${toShip.length} summaries: ${result.status}`);
   }
 

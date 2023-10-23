@@ -5,6 +5,7 @@ export type ConfigEvaluationMetadata = {
   configRowIndex: number;
   conditionalValueIndex: number;
   type: string;
+  configId: string;
 };
 
 export class Config {
@@ -56,6 +57,7 @@ export class Config {
       configRowIndex: parseInt(metadata.configRowIndex),
       conditionalValueIndex: parseInt(metadata.conditionalValueIndex),
       type: metadata.type,
+      configId: metadata.id,
     };
   }
 }

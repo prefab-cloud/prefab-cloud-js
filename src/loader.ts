@@ -13,6 +13,7 @@ export type LoaderParams = {
   apiKey: string;
   context: Context;
   endpoints?: string[] | undefined;
+  apiEndpoint?: string | undefined;
   timeout?: number;
 };
 
@@ -23,17 +24,26 @@ export default class Loader {
 
   endpoints: string[];
 
+  apiEndpoint: string;
+
   timeout: number;
 
   abortTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
-  constructor({apiKey, context, endpoints = undefined, timeout}: LoaderParams) {
+  constructor({
+    apiKey,
+    context,
+    endpoints = undefined,
+    apiEndpoint = undefined,
+    timeout,
+  }: LoaderParams) {
     this.apiKey = apiKey;
     this.context = context;
     this.endpoints = endpoints || [
       'https://api-prefab-cloud.global.ssl.fastly.net/api/v1',
       'https://api.prefab.cloud/api/v1',
     ];
+    this.apiEndpoint = apiEndpoint || 'https://api.prefab.cloud/api/v1';
     this.timeout = timeout || DEFAULT_TIMEOUT;
   }
 
@@ -108,8 +118,7 @@ export default class Loader {
     const controller = new AbortController() as AbortController;
     const signal = controller?.signal;
 
-    const endpoint = this.endpoints[index];
-    const url = Loader.postUrl('https:/api.catfood.staging-prefab.cloud');
+    const url = Loader.postUrl(this.apiEndpoint);
 
     fetch(url, {signal, ...options})
       .then((response) => {
@@ -126,11 +135,7 @@ export default class Loader {
       .catch((error) => {
         this.clearAbortTimeout();
 
-        if (index < this.endpoints.length - 1) {
-          this.loadFromEndpoint(index + 1, options, resolve, reject);
-        } else {
-          reject(error);
-        }
+        reject(error);
       });
 
     this.abortTimeoutId = setTimeout(() => {

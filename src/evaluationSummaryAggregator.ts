@@ -10,9 +10,17 @@
 
 import {PeriodicSync} from './periodicSync';
 import {Config, ConfigEvaluationMetadata} from './config';
+import ConfigValue from './configValue';
 import {type prefab} from './prefab';
 
+type ConfigValueType = 'int64' | 'string' | 'bool' | 'double';
+
+interface SelectedValue {
+  [key: ConfigValueType]: ConfigValue;
+}
+
 type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, 'type'> & {
+  selectedValue: SelectedValue;
   count: number;
 };
 
@@ -33,7 +41,7 @@ type TelemetryEvent = {
 };
 
 type TelemetryEvents = {
-  instance_hash: string;
+  instanceHash: string;
   events: TelemetryEvent[];
 };
 
@@ -55,7 +63,11 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     // create counter entry if it doesn't exist
     if (!this.data.has(key)) {
       // TODO: add rule match metadata from config
-      this.data.set(key, {...metadata, count: 0});
+      this.data.set(key, {
+        ...metadata,
+        selectedValue: {[config.type]: config.value},
+        count: 0,
+      });
     }
 
     // increment count
@@ -74,7 +86,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.client.loader?.post({telemetryEvents: this.events(summaries)});
+    this.client.loader?.post(this.events(summaries));
     // TODO: log result of post?
     // PeriodicSync.logInternal(`Uploaded ${toShip.length} summaries: ${result.status}`);
   }
@@ -97,7 +109,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     const event = {summaries};
 
     return {
-      instance_hash: this.client.instanceHash,
+      instanceHash: this.client.instanceHash,
       events: [event],
     };
   }

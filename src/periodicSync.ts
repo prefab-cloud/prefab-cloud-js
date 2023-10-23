@@ -53,7 +53,7 @@ abstract class PeriodicSync<T> {
   private scheduleNextSync() {
     const interval = this.syncInterval();
     this.logInternal(
-      `Scheduled next sync in ${interval} ms for ${this.name} instance_hash=${this.client.instanceHash}`
+      `Scheduled next sync in ${interval} ms for ${this.name} instanceHash=${this.client.instanceHash}`
     );
     setTimeout(() => {
       this.sync();

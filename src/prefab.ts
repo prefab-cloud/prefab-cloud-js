@@ -15,6 +15,7 @@ type InitParams = {
   identity?: Identity;
   context?: Context;
   endpoints?: string[] | undefined;
+  apiEndpoint?: string;
   timeout?: number;
   afterEvaluationCallback?: EvaluationCallback;
 };
@@ -53,6 +54,7 @@ export const prefab = {
     context: providedContext,
     identity,
     endpoints = undefined,
+    apiEndpoint,
     timeout = undefined,
     afterEvaluationCallback = () => {},
   }: InitParams) {
@@ -68,6 +70,7 @@ export const prefab = {
       apiKey,
       context,
       endpoints,
+      apiEndpoint,
       timeout,
     });
 
@@ -114,6 +117,11 @@ export const prefab = {
   get(key: string): ConfigValue {
     const config = this.configs[key];
     const value = config?.value;
+
+    if (!config) {
+      console.log('bad key: ' + key);
+      return value;
+    }
 
     if (!key.startsWith(loggerPrefix)) {
       setTimeout(() => this.evalutionSummaryAggregator?.record(config));

@@ -8,18 +8,18 @@
 
 // client option to disable telemetry?
 
-import {PeriodicSync} from './periodicSync';
-import {Config, ConfigEvaluationMetadata} from './config';
-import ConfigValue from './configValue';
-import {type prefab} from './prefab';
+import { PeriodicSync } from "./periodicSync";
+import { Config, ConfigEvaluationMetadata } from "./config";
+import ConfigValue from "./configValue";
+import { type prefab } from "./prefab";
 
-type ConfigValueType = 'int64' | 'string' | 'bool' | 'double';
+type ConfigValueType = "int64" | "string" | "bool" | "double";
 
 type SelectedValue = {
   [key in ConfigValueType]?: ConfigValue;
 };
 
-type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, 'type'> & {
+type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, "type"> & {
   selectedValue: SelectedValue;
   count: number;
 };
@@ -49,7 +49,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   private maxKeys: number;
 
   constructor(client: typeof prefab, maxKeys: number, syncInterval?: number) {
-    super(client, 'evaluation_summary_aggregator', syncInterval);
+    super(client, "evaluation_summary_aggregator", syncInterval);
 
     this.maxKeys = maxKeys;
   }
@@ -58,14 +58,14 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     if (this.data.size >= this.maxKeys) return;
 
     if (config.configEvaluationMetadata) {
-      const {type, ...metadata} = config.configEvaluationMetadata;
+      const { type, ...metadata } = config.configEvaluationMetadata;
       const key = `${config.key},${type}`;
 
       // create counter entry if it doesn't exist
       if (!this.data.has(key)) {
         this.data.set(key, {
           ...metadata,
-          selectedValue: {[config.type]: config.value},
+          selectedValue: { [config.type]: config.value },
           count: 0,
         });
       }
@@ -94,7 +94,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
 
   private static summaries(data: Map<string, ConfigEvaluationCounter>): ConfigEvaluationSummary[] {
     return Array.from(data).map((entry: [string, ConfigEvaluationCounter]) => {
-      const [configKey, configType] = entry[0].split(',');
+      const [configKey, configType] = entry[0].split(",");
       const counter = entry[1];
       const counters = [counter]; // this client only ever has one set of counter info per key
 
@@ -107,7 +107,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   }
 
   private events(summaries: any): TelemetryEvents {
-    const event = {summaries};
+    const event = { summaries };
 
     return {
       instanceHash: this.client.instanceHash,
@@ -116,4 +116,4 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   }
 }
 
-export {EvaluationSummaryAggregator};
+export { EvaluationSummaryAggregator };

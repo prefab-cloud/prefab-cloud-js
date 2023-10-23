@@ -1,5 +1,5 @@
-import {ExponentialBackoff} from './exponentialBackoff';
-import {type prefab} from './prefab';
+import { ExponentialBackoff } from "./exponentialBackoff";
+import { type prefab } from "./prefab";
 
 abstract class PeriodicSync<T> {
   protected data: Map<string, T> = new Map();
@@ -72,11 +72,11 @@ abstract class PeriodicSync<T> {
 
   protected logInternal(message: string): void {
     if (
-      this.client.shouldLog({loggerName: this.name, desiredLevel: 'debug', defaultLevel: 'error'})
+      this.client.shouldLog({ loggerName: this.name, desiredLevel: "debug", defaultLevel: "error" })
     ) {
       console.log(message);
     }
   }
 }
 
-export {PeriodicSync};
+export { PeriodicSync };

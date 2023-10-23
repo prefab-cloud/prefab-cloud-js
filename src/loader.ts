@@ -1,10 +1,10 @@
-import Context from './context';
-import base64Encode from './base64Encode';
-import version from './version';
+import Context from "./context";
+import base64Encode from "./base64Encode";
+import version from "./version";
 
 const headers = (apiKey: string) => ({
   Authorization: `Basic ${base64Encode(`u:${apiKey}`)}`,
-  'X-PrefabCloud-Client-Version': `prefab-cloud-js-${version}`,
+  "X-PrefabCloud-Client-Version": `prefab-cloud-js-${version}`,
 });
 
 export const DEFAULT_TIMEOUT = 10000;
@@ -40,10 +40,10 @@ export default class Loader {
     this.apiKey = apiKey;
     this.context = context;
     this.endpoints = endpoints || [
-      'https://api-prefab-cloud.global.ssl.fastly.net/api/v1',
-      'https://api.prefab.cloud/api/v1',
+      "https://api-prefab-cloud.global.ssl.fastly.net/api/v1",
+      "https://api.prefab.cloud/api/v1",
     ];
-    this.apiEndpoint = apiEndpoint || 'https://api.prefab.cloud/api/v1';
+    this.apiEndpoint = apiEndpoint || "https://api.prefab.cloud/api/v1";
     this.timeout = timeout || DEFAULT_TIMEOUT;
   }
 
@@ -63,7 +63,7 @@ export default class Loader {
     const endpoint = this.endpoints[index];
     const url = this.url(endpoint);
 
-    fetch(url, {signal, ...options})
+    fetch(url, { signal, ...options })
       .then((response) => {
         this.clearAbortTimeout();
 
@@ -91,7 +91,7 @@ export default class Loader {
   }
 
   load() {
-    const options = {headers: headers(this.apiKey)};
+    const options = { headers: headers(this.apiKey) };
 
     const promise = new Promise((resolve, reject) => {
       this.loadFromEndpoint(0, options, resolve, reject);
@@ -120,7 +120,7 @@ export default class Loader {
 
     const url = Loader.postUrl(this.apiEndpoint);
 
-    fetch(url, {signal, ...options})
+    fetch(url, { signal, ...options })
       .then((response) => {
         this.clearAbortTimeout();
 
@@ -145,13 +145,13 @@ export default class Loader {
 
   post(data: any) {
     const options = {
-      method: 'POST',
+      method: "POST",
       headers: {
         ...headers(this.apiKey),
-        'Access-Control-Allow-Methods': 'GET, POST',
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Access-Control-Allow-Methods": "GET, POST",
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify(data),
     };

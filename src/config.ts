@@ -1,5 +1,5 @@
-import ConfigKey from './configKey';
-import ConfigValue from './configValue';
+import ConfigKey from "./configKey";
+import ConfigValue from "./configValue";
 
 export type ConfigEvaluationMetadata = {
   configRowIndex: number;
@@ -29,13 +29,13 @@ export class Config {
     this.configEvaluationMetadata = metadata;
   }
 
-  static digest(rawValues: {[key: string]: any}) {
-    const configs = {} as {[key: string]: Config};
+  static digest(rawValues: { [key: string]: any }) {
+    const configs = {} as { [key: string]: Config };
 
     Object.keys(rawValues || {}).forEach((key) => {
       const value = rawValues[key];
 
-      if (typeof value === 'object') {
+      if (typeof value === "object") {
         const type = Object.keys(value)[0];
 
         configs[key] = new Config(
@@ -45,7 +45,7 @@ export class Config {
           this.parseRawMetadata(value.configEvaluationMetadata)
         );
       } else {
-        configs[key] = new Config(key, value, 'unknown');
+        configs[key] = new Config(key, value, "unknown");
       }
     });
 

@@ -148,8 +148,6 @@ export default class Loader {
       method: "POST",
       headers: {
         ...headers(this.apiKey),
-        "Access-Control-Allow-Methods": "GET, POST",
-        "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json",
         Accept: "application/json",
       },

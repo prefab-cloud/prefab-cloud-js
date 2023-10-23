@@ -57,7 +57,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   record(config: Config): void {
     if (this.data.size >= this.maxKeys) return;
 
-    if (config.configEvaluationMetadata) {
+    if (config?.configEvaluationMetadata) {
       const { type, ...metadata } = config.configEvaluationMetadata;
       const key = `${config.key},${type}`;
 

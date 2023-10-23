@@ -57,22 +57,24 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   record(config: Config): void {
     if (this.data.size >= this.maxKeys) return;
 
-    const {type, ...metadata} = config.configEvaluationMetadata;
-    const key = `${config.key},${type}`;
+    if (config.configEvaluationMetadata) {
+      const {type, ...metadata} = config.configEvaluationMetadata;
+      const key = `${config.key},${type}`;
 
-    // create counter entry if it doesn't exist
-    if (!this.data.has(key)) {
-      this.data.set(key, {
-        ...metadata,
-        selectedValue: {[config.type]: config.value},
-        count: 0,
-      });
-    }
+      // create counter entry if it doesn't exist
+      if (!this.data.has(key)) {
+        this.data.set(key, {
+          ...metadata,
+          selectedValue: {[config.type]: config.value},
+          count: 0,
+        });
+      }
 
-    // increment count
-    const counter = this.data.get(key);
-    if (counter) {
-      counter.count += 1;
+      // increment count
+      const counter = this.data.get(key);
+      if (counter) {
+        counter.count += 1;
+      }
     }
   }
 

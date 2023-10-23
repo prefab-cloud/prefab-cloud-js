@@ -6,7 +6,7 @@ import Context from './context';
 import {EvaluationSummaryAggregator} from './evaluationSummaryAggregator';
 import Identity from './identity';
 import Loader, {LoaderParams} from './loader';
-import {shouldLog} from './logger';
+import {PREFIX as loggerPrefix, shouldLog} from './logger';
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
 
@@ -115,7 +115,9 @@ export const prefab = {
     const config = this.configs[key];
     const value = config?.value;
 
-    setTimeout(() => this.evalutionSummaryAggregator?.record(config));
+    if (!key.startsWith(loggerPrefix)) {
+      setTimeout(() => this.evalutionSummaryAggregator?.record(config));
+    }
 
     setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
 

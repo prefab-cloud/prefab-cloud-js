@@ -26,7 +26,7 @@ abstract class PeriodicSync<T> {
   sync(): void {
     if (this.data.size === 0) return;
 
-    console.log(`Syncing ${this.data.size} items`);
+    this.logInternal(`Syncing ${this.data.size} items`);
 
     const startAtWas = this.startAt;
     this.startAt = new Date();
@@ -52,7 +52,7 @@ abstract class PeriodicSync<T> {
 
   private scheduleNextSync() {
     const interval = this.syncInterval();
-    console.log(
+    this.logInternal(
       `Scheduled next sync in ${interval} ms for ${this.name} instance_hash=${this.client.instanceHash}`
     );
     setTimeout(() => {
@@ -70,10 +70,12 @@ abstract class PeriodicSync<T> {
     return () => backoff.call();
   }
 
-  protected static logInternal(message: string): void {
-    // this.client.log.logInternal(message, this.name, null, Logger.DEBUG);
-    console.log(message);
-    // TODO: pass in prefab shouldLog
+  protected logInternal(message: string): void {
+    if (
+      this.client.shouldLog({loggerName: this.name, desiredLevel: 'debug', defaultLevel: 'error'})
+    ) {
+      console.log(message);
+    }
   }
 }
 

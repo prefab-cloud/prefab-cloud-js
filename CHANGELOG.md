@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.16 - 2023-10-23
+
+- Start reporting evaluation telemetry when keys are actually used
+
 ## 0.1.15 - 2023-09-20
 
 - Add support for a `afterEvaluationCallback` callback for forwarding evaluation events to analytics

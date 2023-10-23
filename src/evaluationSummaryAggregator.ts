@@ -1,12 +1,12 @@
-// initialize triggers to flush on beforeunload
+// TODO: flush on beforeunload
 
-// retries
+// TODO: should we retry the data chunk if a flush fails?
 
-// pause when offline?
+// TODO: pause when offline?
 
-// flush when we receive a config update (or as a result of a context update...but that should trigger a config update anyway)
+// TODO: flush when we receive a config update (or as a result of a context update...but that should trigger a config update anyway)
 
-// client option to disable telemetry?
+// TODO: client option to disable telemetry?
 
 import { PeriodicSync } from "./periodicSync";
 import { Config, ConfigEvaluationMetadata } from "./config";
@@ -49,7 +49,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   private maxKeys: number;
 
   constructor(client: typeof prefab, maxKeys: number, syncInterval?: number) {
-    super(client, "evaluation_summary_aggregator", syncInterval);
+    super(client, "EvaluationSummaryAggregator", syncInterval);
 
     this.maxKeys = maxKeys;
   }
@@ -87,9 +87,9 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.client.loader?.post(this.events(summaries));
-    // TODO: log result of post?
-    // PeriodicSync.logInternal(`Uploaded ${toShip.length} summaries: ${result.status}`);
+    this.client.loader?.post(this.events(summaries)).then(() => {
+      this.logInternal(`Uploaded ${toShip.size} summaries`);
+    });
   }
 
   private static summaries(data: Map<string, ConfigEvaluationCounter>): ConfigEvaluationSummary[] {

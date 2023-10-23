@@ -130,7 +130,7 @@ export default class Loader {
         throw new Error(`${response.status} ${response.statusText}`);
       })
       .then((response) => {
-        resolve(response.values);
+        resolve(response);
       })
       .catch((error) => {
         this.clearAbortTimeout();

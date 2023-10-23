@@ -12,8 +12,6 @@ abstract class PeriodicSync<T> {
 
   private name: string;
 
-  // private nextSyncTimeout: NodeJS.Timeout | null = null;
-
   constructor(client: typeof prefab, name: string, syncInterval?: number) {
     this.client = client;
     this.name = name;

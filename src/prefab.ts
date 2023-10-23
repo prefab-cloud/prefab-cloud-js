@@ -120,9 +120,9 @@ export const prefab = {
 
     if (!key.startsWith(loggerPrefix)) {
       setTimeout(() => this.evalutionSummaryAggregator?.record(config));
-    }
 
-    setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+      setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+    }
 
     return value;
   },

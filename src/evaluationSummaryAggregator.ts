@@ -10,7 +10,7 @@
 
 import {PeriodicSync} from './periodicSync';
 import {Config, ConfigEvaluationMetadata} from './config';
-import Loader from './loader';
+import {type prefab} from './prefab';
 
 type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, 'type'> & {
   count: number;
@@ -40,8 +40,8 @@ type TelemetryEvents = {
 class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> {
   private maxKeys: number;
 
-  constructor(instanceHash: string, loader: Loader, maxKeys: number, syncInterval?: number) {
-    super(instanceHash, loader, 'evaluation_summary_aggregator', syncInterval);
+  constructor(client: typeof prefab, maxKeys: number, syncInterval?: number) {
+    super(client, 'evaluation_summary_aggregator', syncInterval);
 
     this.maxKeys = maxKeys;
   }
@@ -49,8 +49,8 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   record(config: Config): void {
     if (this.data.size >= this.maxKeys) return;
 
-    const key = `${config.key},${config.configEvaluationMetadata.type}`;
     const {type, ...metadata} = config.configEvaluationMetadata;
+    const key = `${config.key},${type}`;
 
     // create counter entry if it doesn't exist
     if (!this.data.has(key)) {
@@ -74,7 +74,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.loader.post({telemetryEvents: this.events(summaries)});
+    this.client.loader?.post({telemetryEvents: this.events(summaries)});
     // TODO: log result of post?
     // console.log(`Uploaded ${toShip.length} summaries: ${result.status}`);
   }
@@ -97,7 +97,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     const event = {summaries};
 
     return {
-      instance_hash: this.instanceHash,
+      instance_hash: this.client.instanceHash,
       events: [event],
     };
   }

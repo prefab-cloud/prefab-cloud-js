@@ -1,5 +1,5 @@
 import {ExponentialBackoff} from './exponentialBackoff';
-import Loader from './loader';
+import {type prefab} from './prefab';
 
 abstract class PeriodicSync<T> {
   protected data: Map<string, T> = new Map();
@@ -8,17 +8,14 @@ abstract class PeriodicSync<T> {
 
   private syncInterval: any;
 
-  protected instanceHash: string;
-
-  protected loader: Loader;
+  protected client: typeof prefab;
 
   private name: string;
 
   // private nextSyncTimeout: NodeJS.Timeout | null = null;
 
-  constructor(instanceHash: string, loader: Loader, name: string, syncInterval?: number) {
-    this.instanceHash = instanceHash;
-    this.loader = loader;
+  constructor(client: typeof prefab, name: string, syncInterval?: number) {
+    this.client = client;
     this.name = name;
 
     this.startAt = new Date();
@@ -56,7 +53,7 @@ abstract class PeriodicSync<T> {
   private scheduleNextSync() {
     const interval = this.syncInterval();
     console.log(
-      `Scheduled next sync in ${interval} ms for ${this.name} instance_hash=${this.instanceHash}`
+      `Scheduled next sync in ${interval} ms for ${this.name} instance_hash=${this.client.instanceHash}`
     );
     setTimeout(() => {
       this.sync();
@@ -73,7 +70,7 @@ abstract class PeriodicSync<T> {
     return () => backoff.call();
   }
 
-  private static logInternal(message: string): void {
+  protected static logInternal(message: string): void {
     // this.client.log.logInternal(message, this.name, null, Logger.DEBUG);
     console.log(message);
     // TODO: pass in prefab shouldLog

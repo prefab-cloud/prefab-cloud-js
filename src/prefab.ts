@@ -71,11 +71,7 @@ export const prefab = {
       timeout,
     });
 
-    this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(
-      this.instanceHash,
-      this.loader,
-      100000
-    );
+    this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this, 100000);
 
     this.afterEvaluationCallback = afterEvaluationCallback;
 

@@ -118,11 +118,6 @@ export const prefab = {
     const config = this.configs[key];
     const value = config?.value;
 
-    if (!config) {
-      console.log('bad key: ' + key);
-      return value;
-    }
-
     if (!key.startsWith(loggerPrefix)) {
       setTimeout(() => this.evalutionSummaryAggregator?.record(config));
     }

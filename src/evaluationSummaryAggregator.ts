@@ -15,9 +15,9 @@ import {type prefab} from './prefab';
 
 type ConfigValueType = 'int64' | 'string' | 'bool' | 'double';
 
-interface SelectedValue {
-  [key: ConfigValueType]: ConfigValue;
-}
+type SelectedValue = {
+  [key in ConfigValueType]?: ConfigValue;
+};
 
 type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, 'type'> & {
   selectedValue: SelectedValue;
@@ -62,7 +62,6 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
 
     // create counter entry if it doesn't exist
     if (!this.data.has(key)) {
-      // TODO: add rule match metadata from config
       this.data.set(key, {
         ...metadata,
         selectedValue: {[config.type]: config.value},

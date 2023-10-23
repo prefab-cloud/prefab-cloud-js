@@ -54,8 +54,8 @@ export class Config {
 
   static parseRawMetadata(metadata: any) {
     return {
-      configRowIndex: parseInt(metadata.configRowIndex),
-      conditionalValueIndex: parseInt(metadata.conditionalValueIndex),
+      configRowIndex: parseInt(metadata.configRowIndex, 10),
+      conditionalValueIndex: parseInt(metadata.conditionalValueIndex, 10),
       type: metadata.type,
       configId: metadata.id,
     };

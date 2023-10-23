@@ -144,9 +144,6 @@ export default class Loader {
   }
 
   post(data: any) {
-    console.log('Posting data:');
-    console.log(JSON.stringify(data));
-
     const options = {
       method: 'POST',
       headers: {

@@ -20,3 +20,9 @@ rm -rf /Users/ayip/src/prefab-cloud-bullet-web/app/react-ui/node_modules/@prefab
 ln -s /Users/ayip/src/prefab-cloud-js/dist /Users/ayip/src/prefab-cloud-bullet-web/app/react-ui/node_modules/@prefab-cloud/prefab-cloud-js/dist
 rm -rf /Users/ayip/src/prefab-cloud-bullet-web/app/react-ui/node_modules/@prefab-cloud/prefab-cloud-react/dist
 ln -s /Users/ayip/src/prefab-cloud-react/dist /Users/ayip/src/prefab-cloud-bullet-web/app/react-ui/node_modules/@prefab-cloud/prefab-cloud-react/dist
+
+# link sandbox
+rm -rf /Users/ayip/src/react-sandbox/node_modules/@prefab-cloud/prefab-cloud-js/dist
+ln -s /Users/ayip/src/prefab-cloud-js/dist /Users/ayip/src/react-sandbox/node_modules/@prefab-cloud/prefab-cloud-js/dist
+rm -rf /Users/ayip/src/react-sandbox/node_modules/@prefab-cloud/prefab-cloud-react/dist
+ln -s /Users/ayip/src/prefab-cloud-react/dist /Users/ayip/src/react-sandbox/node_modules/@prefab-cloud/prefab-cloud-react/dist

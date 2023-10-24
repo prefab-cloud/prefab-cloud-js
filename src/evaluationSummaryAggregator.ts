@@ -26,7 +26,7 @@ type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, "type"> & {
 
 type ConfigEvaluationSummary = {
   key: string;
-  type: string; // should this be restricted type enum?
+  type: string; // FEATURE_FLAG, CONFIG, etc
   counters: ConfigEvaluationCounter[];
 };
 

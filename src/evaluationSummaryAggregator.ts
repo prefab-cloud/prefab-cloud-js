@@ -6,21 +6,12 @@
 
 // TODO: flush when we receive a config update (or as a result of a context update...but that should trigger a config update anyway)
 
-// TODO: client option to disable telemetry?
-
 import { PeriodicSync } from "./periodicSync";
 import { Config, ConfigEvaluationMetadata } from "./config";
-import ConfigValue from "./configValue";
 import { type prefab } from "./prefab";
 
-type ConfigValueType = "int64" | "string" | "bool" | "double";
-
-type SelectedValue = {
-  [key in ConfigValueType]?: ConfigValue;
-};
-
 type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, "type"> & {
-  selectedValue: SelectedValue;
+  selectedValue: any;
   count: number;
 };
 

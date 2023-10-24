@@ -42,7 +42,9 @@ export class Config {
           key,
           value[type],
           type,
-          this.parseRawMetadata(value.configEvaluationMetadata)
+          value.configEvaluationMetadata
+            ? this.parseRawMetadata(value.configEvaluationMetadata)
+            : undefined
         );
       } else {
         configs[key] = new Config(key, value, "unknown");

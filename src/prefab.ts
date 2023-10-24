@@ -7,6 +7,7 @@ import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
 import Identity from "./identity";
 import Loader, { LoaderParams } from "./loader";
 import { PREFIX as loggerPrefix, shouldLog } from "./logger";
+import TelemetryUploader from "./telemetryUploader";
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
 
@@ -32,6 +33,8 @@ export const prefab = {
   loaded: false as boolean,
 
   loader: undefined as Loader | undefined,
+
+  telemetryUploader: undefined as TelemetryUploader | undefined,
 
   context: undefined as Context | undefined,
 
@@ -73,6 +76,8 @@ export const prefab = {
       apiEndpoint,
       timeout,
     });
+
+    this.telemetryUploader = new TelemetryUploader({ apiKey, apiEndpoint, timeout });
 
     this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this, 100000);
 

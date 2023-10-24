@@ -87,7 +87,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.client.loader?.post(this.events(summaries)).then(() => {
+    this.client.telemetryUploader?.post(this.events(summaries)).then(() => {
       this.logInternal(`Uploaded ${toShip.size} summaries`);
     });
   }

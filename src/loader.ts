@@ -1,13 +1,5 @@
+import { headers, DEFAULT_TIMEOUT } from "./apiHelpers";
 import Context from "./context";
-import base64Encode from "./base64Encode";
-import version from "./version";
-
-const headers = (apiKey: string) => ({
-  Authorization: `Basic ${base64Encode(`u:${apiKey}`)}`,
-  "X-PrefabCloud-Client-Version": `prefab-cloud-js-${version}`,
-});
-
-export const DEFAULT_TIMEOUT = 10000;
 
 export type LoaderParams = {
   apiKey: string;
@@ -102,62 +94,5 @@ export default class Loader {
 
   clearAbortTimeout() {
     clearTimeout(this.abortTimeoutId);
-  }
-
-  static postUrl(root: string) {
-    return `${root}/api/v1/telemetry`;
-  }
-
-  postToEndpoint(
-    index: number,
-    options: object,
-    data: any,
-    resolve: (value: any) => void,
-    reject: (value: any) => void
-  ) {
-    const controller = new AbortController() as AbortController;
-    const signal = controller?.signal;
-
-    const url = Loader.postUrl(this.apiEndpoint);
-
-    fetch(url, { signal, ...options })
-      .then((response) => {
-        this.clearAbortTimeout();
-
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error(`${response.status} ${response.statusText}`);
-      })
-      .then((response) => {
-        resolve(response);
-      })
-      .catch((error) => {
-        this.clearAbortTimeout();
-
-        reject(error);
-      });
-
-    this.abortTimeoutId = setTimeout(() => {
-      controller.abort();
-    }, this.timeout);
-  }
-
-  post(data: any) {
-    const options = {
-      method: "POST",
-      headers: {
-        ...headers(this.apiKey),
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-
-    const promise = new Promise((resolve, reject) => {
-      this.postToEndpoint(0, options, data, resolve, reject);
-    });
-
-    return promise;
   }
 }

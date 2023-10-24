@@ -19,6 +19,7 @@ type InitParams = {
   apiEndpoint?: string;
   timeout?: number;
   afterEvaluationCallback?: EvaluationCallback;
+  collectEvaluationSummaries?: boolean;
 };
 
 type PollStatus =
@@ -48,6 +49,8 @@ export const prefab = {
 
   instanceHash: uuid(),
 
+  collectEvaluationSummaries: false as boolean,
+
   evalutionSummaryAggregator: undefined as EvaluationSummaryAggregator | undefined,
 
   afterEvaluationCallback: (() => {}) as EvaluationCallback,
@@ -60,6 +63,7 @@ export const prefab = {
     apiEndpoint,
     timeout = undefined,
     afterEvaluationCallback = () => {},
+    collectEvaluationSummaries = false,
   }: InitParams) {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
@@ -79,7 +83,11 @@ export const prefab = {
 
     this.telemetryUploader = new TelemetryUploader({ apiKey, apiEndpoint, timeout });
 
-    this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this, 100000);
+    this.collectEvaluationSummaries = collectEvaluationSummaries;
+
+    if (collectEvaluationSummaries) {
+      this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this, 100000);
+    }
 
     this.afterEvaluationCallback = afterEvaluationCallback;
 
@@ -124,7 +132,9 @@ export const prefab = {
     const value = config?.value;
 
     if (!key.startsWith(loggerPrefix)) {
-      setTimeout(() => this.evalutionSummaryAggregator?.record(config));
+      if (this.collectEvaluationSummaries) {
+        setTimeout(() => this.evalutionSummaryAggregator?.record(config));
+      }
 
       setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
     }

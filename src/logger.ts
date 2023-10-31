@@ -14,7 +14,7 @@ const WORD_LEVEL_LOOKUP: Readonly<Record<string, number>> = {
 export type Severity = keyof typeof WORD_LEVEL_LOOKUP;
 
 export const isValidLogLevel = (logLevel: string) =>
-  Object.keys(WORD_LEVEL_LOOKUP).includes(logLevel);
+  Object.keys(WORD_LEVEL_LOOKUP).includes(logLevel.toUpperCase());
 
 export const shouldLog = ({
   loggerName,

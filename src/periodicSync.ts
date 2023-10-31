@@ -64,7 +64,7 @@ abstract class PeriodicSync<T> {
       return () => syncInterval;
     }
 
-    const backoff = new ExponentialBackoff(60 * 5);
+    const backoff = new ExponentialBackoff(60 * 5, 8);
     return () => backoff.call();
   }
 

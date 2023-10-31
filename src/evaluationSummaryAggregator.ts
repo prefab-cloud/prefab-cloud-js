@@ -28,7 +28,7 @@ type ConfigEvaluationSummaries = {
 };
 
 type TelemetryEvent = {
-  summaries: ConfigEvaluationSummaries[];
+  summaries: ConfigEvaluationSummaries;
 };
 
 type TelemetryEvents = {
@@ -40,7 +40,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   private maxKeys: number;
 
   constructor(client: typeof prefab, maxKeys: number, syncInterval?: number) {
-    super(client, "EvaluationSummaryAggregator", syncInterval);
+    super(client, "EvaluationSummaryAggregator", syncInterval ?? 30000);
 
     this.maxKeys = maxKeys;
   }
@@ -97,7 +97,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
     });
   }
 
-  private events(summaries: any): TelemetryEvents {
+  private events(summaries: ConfigEvaluationSummaries): TelemetryEvents {
     const event = { summaries };
 
     return {

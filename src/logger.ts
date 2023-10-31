@@ -1,6 +1,6 @@
-import ConfigValue from './configValue';
+import ConfigValue from "./configValue";
 
-export const PREFIX = 'log-level';
+export const PREFIX = "log-level";
 
 const WORD_LEVEL_LOOKUP: Readonly<Record<string, number>> = {
   TRACE: 1,
@@ -10,6 +10,11 @@ const WORD_LEVEL_LOOKUP: Readonly<Record<string, number>> = {
   ERROR: 6,
   FATAL: 9,
 };
+
+export type Severity = keyof typeof WORD_LEVEL_LOOKUP;
+
+export const isValidLogLevel = (logLevel: string) =>
+  Object.keys(WORD_LEVEL_LOOKUP).includes(logLevel.toUpperCase());
 
 export const shouldLog = ({
   loggerName,
@@ -32,11 +37,11 @@ export const shouldLog = ({
       return WORD_LEVEL_LOOKUP[resolvedLevel.toString()] <= desiredLevelNumber;
     }
 
-    if (loggerNameWithPrefix.indexOf('.') === -1) {
+    if (loggerNameWithPrefix.indexOf(".") === -1) {
       break;
     }
 
-    loggerNameWithPrefix = loggerNameWithPrefix.slice(0, loggerNameWithPrefix.lastIndexOf('.'));
+    loggerNameWithPrefix = loggerNameWithPrefix.slice(0, loggerNameWithPrefix.lastIndexOf("."));
   }
 
   return WORD_LEVEL_LOOKUP[defaultLevel.toUpperCase()] <= desiredLevelNumber;

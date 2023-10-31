@@ -6,8 +6,9 @@ import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
 import Identity from "./identity";
 import Loader, { LoaderParams } from "./loader";
-import { PREFIX as loggerPrefix, shouldLog } from "./logger";
+import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
 import TelemetryUploader from "./telemetryUploader";
+import { LoggerAggregator } from "./loggerAggregator";
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
 
@@ -20,6 +21,7 @@ type InitParams = {
   timeout?: number;
   afterEvaluationCallback?: EvaluationCallback;
   collectEvaluationSummaries?: boolean;
+  collectLoggerNames?: boolean;
 };
 
 type PollStatus =
@@ -51,7 +53,11 @@ export const prefab = {
 
   collectEvaluationSummaries: false as boolean,
 
+  collectLoggerNames: false as boolean,
+
   evalutionSummaryAggregator: undefined as EvaluationSummaryAggregator | undefined,
+
+  loggerAggregator: undefined as LoggerAggregator | undefined,
 
   afterEvaluationCallback: (() => {}) as EvaluationCallback,
 
@@ -64,6 +70,7 @@ export const prefab = {
     timeout = undefined,
     afterEvaluationCallback = () => {},
     collectEvaluationSummaries = false,
+    collectLoggerNames = false,
   }: InitParams) {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
@@ -84,9 +91,13 @@ export const prefab = {
     this.telemetryUploader = new TelemetryUploader({ apiKey, apiEndpoint, timeout });
 
     this.collectEvaluationSummaries = collectEvaluationSummaries;
-
     if (collectEvaluationSummaries) {
       this.evalutionSummaryAggregator = new EvaluationSummaryAggregator(this, 100000);
+    }
+
+    this.collectLoggerNames = collectLoggerNames;
+    if (collectLoggerNames) {
+      this.loggerAggregator = new LoggerAggregator(this, 100000);
     }
 
     this.afterEvaluationCallback = afterEvaluationCallback;
@@ -143,6 +154,16 @@ export const prefab = {
   },
 
   shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {
+    if (this.collectLoggerNames && isValidLogLevel(args.desiredLevel)) {
+      setTimeout(
+        () =>
+          this.loggerAggregator?.record(
+            args.loggerName,
+            args.desiredLevel.toUpperCase() as Severity
+          )
+      );
+    }
+
     return shouldLog({ ...args, get: this.get.bind(this) });
   },
 };

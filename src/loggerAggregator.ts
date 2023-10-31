@@ -4,8 +4,6 @@
 
 // TODO: pause when offline?
 
-// TODO: flush when we receive a config update (or as a result of a context update...but that should trigger a config update anyway)
-
 import { Severity } from "./logger";
 import { PeriodicSync } from "./periodicSync";
 import { type prefab } from "./prefab";
@@ -55,8 +53,6 @@ class LoggerAggregator extends PeriodicSync<LoggerCounter> {
 
   record(logger: string, level: Severity): void {
     if (this.data.size >= this.maxLoggers) return;
-
-    // need to map from level to correct field in counter
 
     // create counter entry if it doesn't exist
     if (!this.data.has(logger)) {

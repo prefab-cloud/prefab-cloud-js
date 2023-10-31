@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.18 - 2023-10-31
+
+- Start reporting known loggers telemetry
+
 ## 0.1.16 - 2023-10-23
 
 - Start reporting evaluation telemetry when keys are actually used

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.19 - 2023-12-11
+
+- Accept a client version string so React client can identify correctly
+
 ## 0.1.18 - 2023-10-31
 
 - Start reporting known loggers telemetry

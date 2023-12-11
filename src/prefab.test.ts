@@ -2,6 +2,7 @@ import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
 import { prefab, Config, Context } from "../index";
 import { DEFAULT_TIMEOUT } from "./apiHelpers";
 import { wait } from "../test/wait";
+import version from "./version";
 
 enableFetchMocks();
 
@@ -74,6 +75,56 @@ describe("init", () => {
 
     await prefab.init(config);
     expect(prefab.loader?.timeout).toEqual(NEW_TIMEOUT);
+  });
+
+  it("sends the client version", async () => {
+    let headersAsserted = false;
+
+    fetchMock.mockResponse(async (req) => {
+      expect(req.headers.get("X-PrefabCloud-Client-Version")).toStrictEqual(
+        `prefab-cloud-js-${version}`
+      );
+      headersAsserted = true;
+
+      return {
+        status: 200,
+        body: "{}",
+      };
+    });
+
+    const params: InitParams = {
+      apiKey: "1234",
+      context: new Context({ user: { device: "desktop" } }),
+    };
+    expect(prefab.loaded).toBe(false);
+
+    await prefab.init(params);
+    expect(headersAsserted).toBe(true);
+  });
+
+  it("can override the client version", async () => {
+    const versionOverride = "prefab-cloud-react-0.11.9";
+    let headersAsserted = false;
+
+    fetchMock.mockResponse(async (req) => {
+      expect(req.headers.get("X-PrefabCloud-Client-Version")).toStrictEqual(versionOverride);
+      headersAsserted = true;
+
+      return {
+        status: 200,
+        body: "{}",
+      };
+    });
+
+    const params: InitParams = {
+      apiKey: "1234",
+      context: new Context({ user: { device: "desktop" } }),
+      clientVersionString: versionOverride,
+    };
+    expect(prefab.loaded).toBe(false);
+
+    await prefab.init(params);
+    expect(headersAsserted).toBe(true);
   });
 });
 

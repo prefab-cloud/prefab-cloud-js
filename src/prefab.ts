@@ -9,6 +9,7 @@ import Loader, { LoaderParams } from "./loader";
 import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
 import TelemetryUploader from "./telemetryUploader";
 import { LoggerAggregator } from "./loggerAggregator";
+import version from "./version";
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
 
@@ -22,6 +23,7 @@ type InitParams = {
   afterEvaluationCallback?: EvaluationCallback;
   collectEvaluationSummaries?: boolean;
   collectLoggerNames?: boolean;
+  clientVersionString?: string;
 };
 
 type PollStatus =
@@ -61,6 +63,8 @@ export const prefab = {
 
   afterEvaluationCallback: (() => {}) as EvaluationCallback,
 
+  clientVersionString: "",
+
   async init({
     apiKey,
     context: providedContext,
@@ -71,6 +75,7 @@ export const prefab = {
     afterEvaluationCallback = () => {},
     collectEvaluationSummaries = false,
     collectLoggerNames = false,
+    clientVersionString = `prefab-cloud-js-${version}`,
   }: InitParams) {
     const context = providedContext ?? identity?.toContext() ?? this.context;
 
@@ -86,9 +91,15 @@ export const prefab = {
       endpoints,
       apiEndpoint,
       timeout,
+      clientVersion: clientVersionString,
     });
 
-    this.telemetryUploader = new TelemetryUploader({ apiKey, apiEndpoint, timeout });
+    this.telemetryUploader = new TelemetryUploader({
+      apiKey,
+      apiEndpoint,
+      timeout,
+      clientVersion: clientVersionString,
+    });
 
     this.collectEvaluationSummaries = collectEvaluationSummaries;
     if (collectEvaluationSummaries) {
@@ -101,6 +112,8 @@ export const prefab = {
     }
 
     this.afterEvaluationCallback = afterEvaluationCallback;
+
+    this.clientVersionString = clientVersionString;
 
     // eslint-disable-next-line no-use-before-define
     return load();

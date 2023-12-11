@@ -1,9 +1,8 @@
 import base64Encode from "./base64Encode";
-import version from "./version";
 
-export const headers = (apiKey: string) => ({
+export const headers = (apiKey: string, clientVersion: string) => ({
   Authorization: `Basic ${base64Encode(`u:${apiKey}`)}`,
-  "X-PrefabCloud-Client-Version": `prefab-cloud-js-${version}`,
+  "X-PrefabCloud-Client-Version": clientVersion,
 });
 
 export const DEFAULT_TIMEOUT = 10000;

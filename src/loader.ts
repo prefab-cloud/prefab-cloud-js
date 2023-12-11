@@ -7,6 +7,7 @@ export type LoaderParams = {
   endpoints?: string[] | undefined;
   apiEndpoint?: string | undefined;
   timeout?: number;
+  clientVersion?: string;
 };
 
 export default class Loader {
@@ -22,12 +23,15 @@ export default class Loader {
 
   abortTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
+  clientVersion: string;
+
   constructor({
     apiKey,
     context,
     endpoints = undefined,
     apiEndpoint = undefined,
     timeout,
+    clientVersion = "",
   }: LoaderParams) {
     this.apiKey = apiKey;
     this.context = context;
@@ -37,6 +41,7 @@ export default class Loader {
     ];
     this.apiEndpoint = apiEndpoint || "https://api.prefab.cloud/api/v1";
     this.timeout = timeout || DEFAULT_TIMEOUT;
+    this.clientVersion = clientVersion;
   }
 
   url(root: string) {
@@ -83,7 +88,7 @@ export default class Loader {
   }
 
   load() {
-    const options = { headers: headers(this.apiKey) };
+    const options = { headers: headers(this.apiKey, this.clientVersion) };
 
     const promise = new Promise((resolve, reject) => {
       this.loadFromEndpoint(0, options, resolve, reject);

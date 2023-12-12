@@ -4,7 +4,6 @@ import { Config } from "./config";
 import ConfigValue from "./configValue";
 import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
-import Identity from "./identity";
 import Loader, { LoaderParams } from "./loader";
 import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
 import TelemetryUploader from "./telemetryUploader";
@@ -15,8 +14,7 @@ type EvaluationCallback = (key: string, value: ConfigValue, context: Context | u
 
 type InitParams = {
   apiKey: string;
-  identity?: Identity;
-  context?: Context;
+  context: Context;
   endpoints?: string[] | undefined;
   apiEndpoint?: string;
   timeout?: number;
@@ -68,7 +66,6 @@ export const prefab = {
   async init({
     apiKey,
     context: providedContext,
-    identity,
     endpoints = undefined,
     apiEndpoint,
     timeout = undefined,
@@ -77,7 +74,7 @@ export const prefab = {
     collectLoggerNames = false,
     clientVersionString = `prefab-cloud-js-${version}`,
   }: InitParams) {
-    const context = providedContext ?? identity?.toContext() ?? this.context;
+    const context = providedContext ?? this.context;
 
     if (!context) {
       throw new Error("Context must be provided");

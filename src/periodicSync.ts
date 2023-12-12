@@ -72,6 +72,7 @@ abstract class PeriodicSync<T> {
     if (
       this.client.shouldLog({ loggerName: this.name, desiredLevel: "debug", defaultLevel: "error" })
     ) {
+      // eslint-disable-next-line no-console
       console.log(message);
     }
   }

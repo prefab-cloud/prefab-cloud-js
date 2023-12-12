@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Remove Identity (#38)
+
 ## 0.1.19 - 2023-12-11
 
 - Accept a client version string so React client can identify correctly

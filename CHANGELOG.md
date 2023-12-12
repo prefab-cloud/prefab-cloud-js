@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2023-12-12
 
 - Remove Identity (#38)
 - Add `updateContext` (#39)

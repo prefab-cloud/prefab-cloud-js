@@ -1,117 +1,102 @@
 // This is in its own file for jest concurrency isolation purposes
 
-import {prefab, Context} from '../index';
+import { Prefab, Context } from "../index";
 
 const exampleContext = new Context({
-  user: {firstName: 'Fred', lastName: 'Jones', id: 10001},
-  team: {name: 'Sales', isCostCenter: false},
+  user: { firstName: "Fred", lastName: "Jones", id: 10001 },
+  team: { name: "Sales", isCostCenter: false },
 });
+
+const setContext = async (prefab: Prefab, contexts: Context) => {
+  // eslint-disable-next-line no-param-reassign
+  prefab.loader = {} as unknown as Prefab["loader"];
+  await prefab.updateContext(contexts, true);
+};
 
 const waitForAsyncCall = async () => {
   // eslint-disable-next-line no-promise-executor-return
   await new Promise((r) => setTimeout(r, 1));
 };
 
-beforeEach(() => {
-  prefab.context = undefined;
-  prefab.loaded = false;
-  prefab.configs = {};
-});
-
-afterEach(() => {
-  prefab.context = undefined;
-});
-
-describe('afterEvaluationCallback', () => {
-  test('get with no Context', async () => {
+describe("afterEvaluationCallback", () => {
+  test("get with no Context", async () => {
     const callback = jest.fn();
 
+    const prefab = new Prefab();
     prefab.afterEvaluationCallback = callback;
 
-    prefab.setConfig({
-      turbo: {
-        double: 2.5,
-      },
-    });
+    prefab.setConfig({ turbo: { double: 2.5 } });
 
     expect(callback).not.toHaveBeenCalled();
 
-    prefab.get('turbo');
+    prefab.get("turbo");
 
     expect(callback).not.toHaveBeenCalled();
 
     await waitForAsyncCall();
 
-    expect(callback).toHaveBeenCalledWith('turbo', 2.5, undefined);
+    expect(callback).toHaveBeenCalledWith("turbo", 2.5, { contexts: {} });
   });
 
-  test('get with context', async () => {
+  test("get with context", async () => {
     const callback = jest.fn();
 
-    prefab.context = exampleContext;
+    const prefab = new Prefab();
+    setContext(prefab, exampleContext);
+
     prefab.afterEvaluationCallback = callback;
 
-    prefab.setConfig({
-      turbo: {
-        double: 2.5,
-      },
-    });
+    prefab.setConfig({ turbo: { double: 2.5 } });
 
     expect(callback).not.toHaveBeenCalled();
 
-    prefab.get('turbo');
+    prefab.get("turbo");
 
     expect(callback).not.toHaveBeenCalled();
 
     await waitForAsyncCall();
 
-    expect(callback).toHaveBeenCalledWith('turbo', 2.5, exampleContext);
+    expect(callback).toHaveBeenCalledWith("turbo", 2.5, exampleContext);
   });
 
-  test('isEnabled with no Context', async () => {
+  test("isEnabled with no Context", async () => {
     const callback = jest.fn();
 
+    const prefab = new Prefab();
     prefab.afterEvaluationCallback = callback;
 
     // it is false when no config is loaded
-    expect(prefab.isEnabled('foo')).toBe(false);
+    expect(prefab.isEnabled("foo")).toBe(false);
 
     await waitForAsyncCall();
-    expect(callback).toHaveBeenCalledWith('foo', undefined, undefined);
+    expect(callback).toHaveBeenCalledWith("foo", undefined, { contexts: {} });
 
-    prefab.setConfig({
-      foo: {
-        bool: true,
-      },
-    });
+    prefab.setConfig({ foo: { bool: true } });
 
-    expect(prefab.isEnabled('foo')).toBe(true);
+    expect(prefab.isEnabled("foo")).toBe(true);
 
     await waitForAsyncCall();
-    expect(callback).toHaveBeenCalledWith('foo', true, undefined);
+    expect(callback).toHaveBeenCalledWith("foo", true, { contexts: {} });
   });
 
-  test('isEnabled with Context', async () => {
+  test("isEnabled with Context", async () => {
     const callback = jest.fn();
+    const prefab = new Prefab();
 
-    prefab.context = exampleContext;
+    await setContext(prefab, exampleContext);
     prefab.afterEvaluationCallback = callback;
 
     // it is false when no config is loaded
-    expect(prefab.isEnabled('foo')).toBe(false);
+    expect(prefab.isEnabled("foo")).toBe(false);
 
     await waitForAsyncCall();
-    expect(callback).toHaveBeenCalledWith('foo', undefined, exampleContext);
+    expect(callback).toHaveBeenCalledWith("foo", undefined, exampleContext);
 
-    prefab.setConfig({
-      foo: {
-        bool: true,
-      },
-    });
+    prefab.setConfig({ foo: { bool: true } });
 
-    expect(prefab.isEnabled('foo')).toBe(true);
+    expect(prefab.isEnabled("foo")).toBe(true);
 
     await waitForAsyncCall();
-    expect(callback).toHaveBeenCalledWith('foo', true, exampleContext);
+    expect(callback).toHaveBeenCalledWith("foo", true, exampleContext);
   });
 });

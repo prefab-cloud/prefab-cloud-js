@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Remove Identity (#38)
+- Add `updateContext` (#39)
 
 ## 0.1.19 - 2023-12-11
 

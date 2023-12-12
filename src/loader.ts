@@ -10,6 +10,14 @@ export type LoaderParams = {
   clientVersion?: string;
 };
 
+export type Headers = {
+  [key: string]: string;
+};
+
+export type FetchOptions = {
+  headers: Headers;
+};
+
 export default class Loader {
   apiKey: string;
 
@@ -24,6 +32,8 @@ export default class Loader {
   abortTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   clientVersion: string;
+
+  abortController: AbortController | undefined;
 
   constructor({
     apiKey,
@@ -50,12 +60,12 @@ export default class Loader {
 
   loadFromEndpoint(
     index: number,
-    options: object,
+    options: FetchOptions,
     resolve: (value: any) => void,
     reject: (value: any) => void
   ) {
-    const controller = new AbortController() as AbortController;
-    const signal = controller?.signal;
+    this.abortController = new AbortController() as AbortController;
+    const { signal } = this.abortController;
 
     const endpoint = this.endpoints[index];
     const url = this.url(endpoint);
@@ -83,11 +93,13 @@ export default class Loader {
       });
 
     this.abortTimeoutId = setTimeout(() => {
-      controller.abort();
+      this.abortController?.abort();
     }, this.timeout);
   }
 
   load() {
+    this.abortController?.abort();
+
     const options = { headers: headers(this.apiKey, this.clientVersion) };
 
     const promise = new Promise((resolve, reject) => {

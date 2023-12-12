@@ -1,21 +1,21 @@
 import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
-import { prefab, Config, Context } from "../index";
+import { Prefab, Config, Context } from "../index";
 import { DEFAULT_TIMEOUT } from "./apiHelpers";
 import { wait } from "../test/wait";
 import version from "./version";
 
 enableFetchMocks();
 
+let prefab = new Prefab();
+
 type InitParams = Parameters<typeof prefab.init>[0];
 
 beforeEach(() => {
-  prefab.loaded = false;
-  prefab.configs = {};
+  prefab = new Prefab();
 });
 
 afterEach(() => {
   prefab.stopPolling();
-  prefab.pollCount = 0;
 });
 
 describe("init", () => {
@@ -160,7 +160,7 @@ describe("poll", () => {
 
     // changing the context should set the context for the loader as well
     const newContext = new Context({ abc: { def: "ghi" } });
-    prefab.context = newContext;
+    prefab.updateContext(newContext, true);
 
     await wait(frequencyInMs);
     expect(prefab.pollCount).toEqual(2);
@@ -386,5 +386,52 @@ describe("shouldLog", () => {
         defaultLevel: "ERROR",
       })
     ).toEqual(false);
+  });
+});
+
+describe("updateContext", () => {
+  it("updates the context and reloads", async () => {
+    let invokedUrl: string | undefined;
+
+    fetchMock.mockResponse(async (req) => {
+      invokedUrl = req.url;
+
+      return {
+        status: 200,
+        body: "{}",
+      };
+    });
+
+    const initialContext = new Context({ user: { device: "desktop" } });
+
+    const config: InitParams = { apiKey: "1234", context: initialContext };
+
+    await prefab.init(config);
+
+    if (!prefab.loader) {
+      throw new Error("Expected loader to be set");
+    }
+
+    expect(prefab.loader.context).toStrictEqual(initialContext);
+    expect(prefab.context).toStrictEqual(initialContext);
+
+    if (invokedUrl === undefined) {
+      throw new Error("Expected invokedUrl to be set");
+    }
+
+    expect(invokedUrl).toStrictEqual(
+      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${initialContext.encode()}`
+    );
+
+    const newContext = new Context({ user: { device: "mobile" } });
+
+    await prefab.updateContext(newContext);
+
+    expect(prefab.loader.context).toStrictEqual(newContext);
+    expect(prefab.context).toStrictEqual(newContext);
+
+    expect(invokedUrl).toStrictEqual(
+      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${newContext.encode()}`
+    );
   });
 });

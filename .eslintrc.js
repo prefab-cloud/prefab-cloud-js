@@ -5,41 +5,42 @@ module.exports = {
     jest: true,
   },
   extends: [
-    'airbnb',
-    'plugin:import/typescript',
-    'plugin:@typescript-eslint/recommended',
+    "airbnb",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended",
     // Make sure this is always the last configuration in the extends array.
-    'prettier',
+    "prettier",
   ],
-  parser: '@typescript-eslint/parser',
+  parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
     },
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+    ecmaVersion: "latest",
+    sourceType: "module",
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ["@typescript-eslint"],
   rules: {
-    'no-unused-vars': 'off', // this rule is incompatible with typescript-eslint's 'no-unused-vars
-    '@typescript-eslint/no-unused-vars': ['error', {argsIgnorePattern: '^_'}],
-    '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    'import/prefer-default-export': 'off',
-    'import/extensions': [
-      'error',
-      'ignorePackages',
+    "no-unused-vars": "off", // this rule is incompatible with typescript-eslint's 'no-unused-vars
+    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "import/prefer-default-export": "off",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
       {
-        ts: 'never',
-        tsx: 'never',
+        ts: "never",
+        tsx: "never",
       },
     ],
+    "no-underscore-dangle": ["error", { allowAfterThis: true }],
   },
   overrides: [
     {
-      files: ['*.test.ts', '*.test.tsx'],
+      files: ["*.test.ts", "*.test.tsx"],
       rules: {
-        'import/no-extraneous-dependencies': 'off',
+        "import/no-extraneous-dependencies": "off",
       },
     },
   ],

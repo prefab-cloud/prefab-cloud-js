@@ -4,7 +4,7 @@ import { Config } from "./config";
 import ConfigValue from "./configValue";
 import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
-import Loader, { LoaderParams } from "./loader";
+import Loader from "./loader";
 import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
 import TelemetryUploader from "./telemetryUploader";
 import { LoggerAggregator } from "./loggerAggregator";
@@ -30,38 +30,34 @@ type PollStatus =
   | { status: "stopped" }
   | { status: "running"; frequencyInMs: number };
 
-export const prefab = {
-  configs: {} as { [key: string]: Config },
+export class Prefab {
+  private _configs: { [key: string]: Config } = {};
 
-  loaded: false as boolean,
+  private _telemetryUploader: TelemetryUploader | undefined;
 
-  loader: undefined as Loader | undefined,
+  private _pollCount = 0;
 
-  telemetryUploader: undefined as TelemetryUploader | undefined,
+  private _pollStatus: PollStatus = { status: "not-started" };
 
-  context: undefined as Context | undefined,
+  private _pollTimeoutId = undefined as ReturnType<typeof setTimeout> | undefined;
 
-  loaderParams: undefined as Omit<LoaderParams, "context"> | undefined,
+  private _instanceHash: string = uuid();
 
-  pollStatus: { status: "not-started" } as PollStatus,
+  private collectEvaluationSummaries = false;
 
-  pollCount: 0,
+  private collectLoggerNames = false;
 
-  pollTimeoutId: undefined as ReturnType<typeof setTimeout> | undefined,
+  private evalutionSummaryAggregator: EvaluationSummaryAggregator | undefined;
 
-  instanceHash: uuid(),
+  private loggerAggregator: LoggerAggregator | undefined;
 
-  collectEvaluationSummaries: false as boolean,
+  public loaded = false;
 
-  collectLoggerNames: false as boolean,
+  public loader: Loader | undefined;
 
-  evalutionSummaryAggregator: undefined as EvaluationSummaryAggregator | undefined,
+  public afterEvaluationCallback = (() => {}) as EvaluationCallback;
 
-  loggerAggregator: undefined as LoggerAggregator | undefined,
-
-  afterEvaluationCallback: (() => {}) as EvaluationCallback,
-
-  clientVersionString: "",
+  private _context: Context = new Context({});
 
   async init({
     apiKey,
@@ -80,7 +76,7 @@ export const prefab = {
       throw new Error("Context must be provided");
     }
 
-    this.context = context;
+    this._context = context;
 
     this.loader = new Loader({
       apiKey,
@@ -91,7 +87,7 @@ export const prefab = {
       clientVersion: clientVersionString,
     });
 
-    this.telemetryUploader = new TelemetryUploader({
+    this._telemetryUploader = new TelemetryUploader({
       apiKey,
       apiEndpoint,
       timeout,
@@ -110,11 +106,71 @@ export const prefab = {
 
     this.afterEvaluationCallback = afterEvaluationCallback;
 
-    this.clientVersionString = clientVersionString;
+    return this.load();
+  }
 
-    // eslint-disable-next-line no-use-before-define
-    return load();
-  },
+  get configs(): { [key: string]: Config } {
+    return this._configs;
+  }
+
+  get context(): Context {
+    return this._context;
+  }
+
+  get instanceHash(): string {
+    return this._instanceHash;
+  }
+
+  get pollTimeoutId() {
+    return this._pollTimeoutId;
+  }
+
+  get pollCount() {
+    return this._pollCount;
+  }
+
+  get pollStatus() {
+    return this._pollStatus;
+  }
+
+  get telemetryUploader(): TelemetryUploader | undefined {
+    return this._telemetryUploader;
+  }
+
+  private async load() {
+    if (!this.loader || !this.context) {
+      throw new Error("Prefab not initialized. Call init() first.");
+    }
+
+    // make sure we have the freshest context
+    this.loader.context = this.context;
+
+    return this.loader
+      .load()
+      .then((rawValues: any) => {
+        this.setConfig(rawValues);
+        this.loaded = true;
+      })
+      .finally(() => {
+        if (this.pollStatus.status === "running") {
+          this._pollCount += 1;
+        }
+      });
+  }
+
+  async updateContext(context: Context, skipLoad = false) {
+    if (!this.loader) {
+      throw new Error("Prefab not initialized. Call init() first.");
+    }
+
+    this._context = context;
+
+    if (skipLoad) {
+      return Promise.resolve();
+    }
+
+    return this.load();
+  }
 
   async poll({ frequencyInMs }: { frequencyInMs: number }) {
     if (!this.loader) {
@@ -123,30 +179,44 @@ export const prefab = {
 
     this.stopPolling();
 
-    this.pollStatus = { status: "pending" };
+    this._pollStatus = { status: "pending" };
 
     return this.loader.load().finally(() => {
-      // eslint-disable-next-line no-use-before-define
-      doPolling({ frequencyInMs });
+      this.doPolling({ frequencyInMs });
     });
-  },
+  }
+
+  private doPolling({ frequencyInMs }: { frequencyInMs: number }) {
+    this._pollTimeoutId = setTimeout(() => {
+      this.load().finally(() => {
+        if (this.pollStatus.status === "running") {
+          this.doPolling({ frequencyInMs });
+        }
+      });
+    }, frequencyInMs);
+
+    this._pollStatus = {
+      status: "running",
+      frequencyInMs,
+    };
+  }
 
   stopPolling() {
     if (this.pollTimeoutId) {
       clearTimeout(this.pollTimeoutId);
-      this.pollTimeoutId = undefined;
+      this._pollTimeoutId = undefined;
     }
 
-    this.pollStatus = { status: "stopped" };
-  },
+    this._pollStatus = { status: "stopped" };
+  }
 
   setConfig(rawValues: { [key: string]: any }) {
-    this.configs = Config.digest(rawValues);
-  },
+    this._configs = Config.digest(rawValues);
+  }
 
   isEnabled(key: string): boolean {
     return this.get(key) === true;
-  },
+  }
 
   get(key: string): ConfigValue {
     const config = this.configs[key];
@@ -161,7 +231,7 @@ export const prefab = {
     }
 
     return value;
-  },
+  }
 
   shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {
     if (this.collectLoggerNames && isValidLogLevel(args.desiredLevel)) {
@@ -175,41 +245,7 @@ export const prefab = {
     }
 
     return shouldLog({ ...args, get: this.get.bind(this) });
-  },
-};
-
-async function load() {
-  if (!prefab.loader || !prefab.context) {
-    throw new Error("Prefab not initialized. Call init() first.");
   }
-
-  // make sure we have the freshest context
-  prefab.loader.context = prefab.context;
-
-  return prefab.loader
-    .load()
-    .then((rawValues: any) => {
-      prefab.setConfig(rawValues);
-      prefab.loaded = true;
-    })
-    .finally(() => {
-      if (prefab.pollStatus.status === "running") {
-        prefab.pollCount += 1;
-      }
-    });
 }
 
-async function doPolling({ frequencyInMs }: { frequencyInMs: number }) {
-  prefab.pollTimeoutId = setTimeout(() => {
-    load().finally(() => {
-      if (prefab.pollStatus.status === "running") {
-        doPolling({ frequencyInMs });
-      }
-    });
-  }, frequencyInMs);
-
-  prefab.pollStatus = {
-    status: "running",
-    frequencyInMs,
-  };
-}
+export const prefab = new Prefab();

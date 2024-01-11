@@ -219,15 +219,28 @@ export class Prefab {
   }
 
   get(key: string): ConfigValue {
+    if (!this.loaded) {
+      console.warn(
+        `Prefab warning: The client has not finished loading data yet. Unable to look up actual value for key "${key}".`
+      );
+    }
+
     const config = this.configs[key];
+
     const value = config?.value;
 
     if (!key.startsWith(loggerPrefix)) {
-      if (this.collectEvaluationSummaries) {
-        setTimeout(() => this.evalutionSummaryAggregator?.record(config));
-      }
+      if (config === undefined) {
+        console.warn(
+          `Prefab warning: unknown config or flag key "${key}". The client may not have finished loading data yet.`
+        );
+      } else {
+        if (this.collectEvaluationSummaries) {
+          setTimeout(() => this.evalutionSummaryAggregator?.record(config));
+        }
 
-      setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+        setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+      }
     }
 
     return value;

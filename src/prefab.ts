@@ -82,7 +82,6 @@ export class Prefab {
       apiKey,
       context,
       endpoints,
-      apiEndpoint,
       timeout,
       clientVersion: clientVersionString,
     });

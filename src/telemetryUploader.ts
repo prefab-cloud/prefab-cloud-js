@@ -35,7 +35,7 @@ export default class TelemetryUploader {
   }
 
   static postUrl(root: string) {
-    return `${root}/api/v1/telemetry`;
+    return `${root}/telemetry`;
   }
 
   postToEndpoint(options: object, resolve: (value: any) => void, reject: (value: any) => void) {

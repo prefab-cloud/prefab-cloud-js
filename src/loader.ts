@@ -5,7 +5,6 @@ export type LoaderParams = {
   apiKey: string;
   context: Context;
   endpoints?: string[] | undefined;
-  apiEndpoint?: string | undefined;
   timeout?: number;
   clientVersion?: string;
 };
@@ -25,8 +24,6 @@ export default class Loader {
 
   endpoints: string[];
 
-  apiEndpoint: string;
-
   timeout: number;
 
   abortTimeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -39,7 +36,6 @@ export default class Loader {
     apiKey,
     context,
     endpoints = undefined,
-    apiEndpoint = undefined,
     timeout,
     clientVersion = "",
   }: LoaderParams) {
@@ -49,7 +45,6 @@ export default class Loader {
       "https://api-prefab-cloud.global.ssl.fastly.net/api/v1",
       "https://api.prefab.cloud/api/v1",
     ];
-    this.apiEndpoint = apiEndpoint || "https://api.prefab.cloud/api/v1";
     this.timeout = timeout || DEFAULT_TIMEOUT;
     this.clientVersion = clientVersion;
   }

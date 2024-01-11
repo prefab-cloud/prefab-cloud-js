@@ -1,6 +1,6 @@
 {
   "name": "@prefab-cloud/prefab-cloud-js",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Feature Flags & Dynamic Configuration as a Service",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

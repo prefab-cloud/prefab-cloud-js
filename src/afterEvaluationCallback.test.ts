@@ -68,8 +68,9 @@ describe("afterEvaluationCallback", () => {
     // it is false when no config is loaded
     expect(prefab.isEnabled("foo")).toBe(false);
 
+    // callback should not be called when no config is loaded
     await waitForAsyncCall();
-    expect(callback).toHaveBeenCalledWith("foo", undefined, { contexts: {} });
+    expect(callback).toHaveBeenCalledTimes(0);
 
     prefab.setConfig({ foo: { bool: true } });
 
@@ -89,8 +90,9 @@ describe("afterEvaluationCallback", () => {
     // it is false when no config is loaded
     expect(prefab.isEnabled("foo")).toBe(false);
 
+    // callback should not be called when no config is loaded
     await waitForAsyncCall();
-    expect(callback).toHaveBeenCalledWith("foo", undefined, exampleContext);
+    expect(callback).toHaveBeenCalledTimes(0);
 
     prefab.setConfig({ foo: { bool: true } });
 

@@ -51,7 +51,12 @@ export default class TelemetryUploader {
         if (response.ok) {
           return response.json();
         }
-        throw new Error(`${response.status} ${response.statusText}`);
+
+        console.warn(
+          `Prefab warning: Error uploading telemetry ${response.status} ${response.statusText}`
+        );
+
+        return response.status;
       })
       .then((response) => {
         resolve(response);

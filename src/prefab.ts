@@ -148,7 +148,6 @@ export class Prefab {
       .load()
       .then((rawValues: any) => {
         this.setConfig(rawValues);
-        this.loaded = true;
       })
       .finally(() => {
         if (this.pollStatus.status === "running") {
@@ -211,6 +210,7 @@ export class Prefab {
 
   setConfig(rawValues: { [key: string]: any }) {
     this._configs = Config.digest(rawValues);
+    this.loaded = true;
   }
 
   isEnabled(key: string): boolean {
@@ -218,7 +218,18 @@ export class Prefab {
   }
 
   get(key: string): ConfigValue {
+    if (!this.loaded) {
+      if (!key.startsWith(loggerPrefix)) {
+        console.warn(
+          `Prefab warning: The client has not finished loading data yet. Unable to look up actual value for key "${key}".`
+        );
+      }
+
+      return undefined;
+    }
+
     const config = this.configs[key];
+
     const value = config?.value;
 
     if (!key.startsWith(loggerPrefix)) {

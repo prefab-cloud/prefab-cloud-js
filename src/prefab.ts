@@ -148,7 +148,6 @@ export class Prefab {
       .load()
       .then((rawValues: any) => {
         this.setConfig(rawValues);
-        this.loaded = true;
       })
       .finally(() => {
         if (this.pollStatus.status === "running") {
@@ -211,6 +210,7 @@ export class Prefab {
 
   setConfig(rawValues: { [key: string]: any }) {
     this._configs = Config.digest(rawValues);
+    this.loaded = true;
   }
 
   isEnabled(key: string): boolean {

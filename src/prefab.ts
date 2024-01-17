@@ -219,9 +219,11 @@ export class Prefab {
 
   get(key: string): ConfigValue {
     if (!this.loaded) {
-      console.warn(
-        `Prefab warning: The client has not finished loading data yet. Unable to look up actual value for key "${key}".`
-      );
+      if (!key.startsWith(loggerPrefix)) {
+        console.warn(
+          `Prefab warning: The client has not finished loading data yet. Unable to look up actual value for key "${key}".`
+        );
+      }
 
       return undefined;
     }

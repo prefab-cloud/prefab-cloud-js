@@ -231,17 +231,11 @@ export class Prefab {
     const value = config?.value;
 
     if (!key.startsWith(loggerPrefix)) {
-      if (config === undefined) {
-        console.warn(
-          `Prefab warning: unknown config or flag key "${key}". The client may not have finished loading data yet.`
-        );
-      } else {
-        if (this.collectEvaluationSummaries) {
-          setTimeout(() => this.evalutionSummaryAggregator?.record(config));
-        }
-
-        setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
+      if (this.collectEvaluationSummaries) {
+        setTimeout(() => this.evalutionSummaryAggregator?.record(config));
       }
+
+      setTimeout(() => this.afterEvaluationCallback(key, value, this.context));
     }
 
     return value;

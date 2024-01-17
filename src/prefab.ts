@@ -222,6 +222,8 @@ export class Prefab {
       console.warn(
         `Prefab warning: The client has not finished loading data yet. Unable to look up actual value for key "${key}".`
       );
+
+      return undefined;
     }
 
     const config = this.configs[key];

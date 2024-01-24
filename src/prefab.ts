@@ -220,6 +220,7 @@ export class Prefab {
   get(key: string): ConfigValue {
     if (!this.loaded) {
       if (!key.startsWith(loggerPrefix)) {
+        // eslint-disable-next-line no-console
         console.warn(
           `Prefab warning: The client has not finished loading data yet. Unable to look up actual value for key "${key}".`
         );

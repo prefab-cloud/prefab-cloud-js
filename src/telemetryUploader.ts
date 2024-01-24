@@ -52,6 +52,7 @@ export default class TelemetryUploader {
           return response.json();
         }
 
+        // eslint-disable-next-line no-console
         console.warn(
           `Prefab warning: Error uploading telemetry ${response.status} ${response.statusText}`
         );

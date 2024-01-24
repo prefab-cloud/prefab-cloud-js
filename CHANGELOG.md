@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add bundled/minified version
+
 ## 0.2.2 - 2024-01-17
 
 - Updates to errors and warnings

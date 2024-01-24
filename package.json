@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/ && ./build.sh",
-    "bundle": "npm run build && esbuild --target=esnext --bundle --outfile=dist/prefab.bundle.js --global-name=window.prefabNamespace dist/index.js",
+    "bundle": "esbuild --minify --target=esnext --bundle --outfile=dist/prefab.bundle.js --global-name=window.prefabNamespace dist/index.js && echo 'window.prefab = window.prefabNamespace.prefab' >> dist/prefab.bundle.js",
     "lint": "eslint --ext .ts,.tsx src/",
     "lint:fix": "eslint --fix --ext .ts,.tsx src/",
     "postversion": "echo 'postversion' && git push && git push --tags",

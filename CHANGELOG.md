@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.3 - 2024-01-24
 
 - Add bundled/minified version
 

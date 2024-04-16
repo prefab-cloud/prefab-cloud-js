@@ -6,6 +6,9 @@ A client for [Prefab]
 
 `npm install @prefab-cloud/prefab-cloud-js` or `yarn add @prefab-cloud/prefab-cloud-js`
 
+If you'd prefer to use the standalone `<script>` tag approach, we recommend using
+[jsDelivr][jsDelivr] for a minified/bundled version.
+
 ## Usage in your app
 
 Initialize prefab with your api key and a `Context` for the current user/visitor/device/request:
@@ -16,12 +19,41 @@ import { prefab, Context } from "@prefab-cloud/prefab-cloud-js";
 const options = {
   apiKey: "1234",
   context: new Context({
-    user: { email: "test@example.com" },
+    user: {
+      email: "test@example.com",
+    },
     device: { mobile: true },
   }),
 };
 await prefab.init(options);
 ```
+
+<details>
+<summary>Initialization with Context with the <code>&lt;script&gt; tag</code></summary>
+
+```javascript
+// `prefab` is available globally on the window object
+// `Context` is available globally as `window.prefabNamespace.Context`
+const options = {
+  apiKey: "1234",
+  context: new prefabNamespace.Context({
+    user: {
+      email: "test@example.com",
+    },
+    device: { mobile: true },
+  }),
+};
+
+prefab.init(options).then(() => {
+  console.log(options);
+  console.log("test-flag is " + prefab.get("test-flag"));
+
+  console.log("ex1-copywrite " + prefab.get("ex1-copywrite"));
+  $(".copywrite").text(prefab.get("ex1-copywrite"));
+});
+```
+
+</details>
 
 Now you can use `prefab`'s config and feature flag evaluation, e.g.
 
@@ -118,3 +150,4 @@ it("shows the turbo button when the feature is enabled", () => {
 ```
 
 [Prefab]: https://www.prefab.cloud/
+[jsDelivr]: https://www.jsdelivr.com/package/npm/@prefab-cloud/prefab-cloud-js

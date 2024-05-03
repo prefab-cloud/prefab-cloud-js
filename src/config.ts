@@ -40,7 +40,7 @@ export class Config {
 
         configs[key] = new Config(
           key,
-          value[type],
+          type === "json" ? JSON.parse(value[type].json) : value[type],
           type,
           value.configEvaluationMetadata
             ? this.parseRawMetadata(value.configEvaluationMetadata)

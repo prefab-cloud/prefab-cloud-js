@@ -4,11 +4,13 @@ import { Config } from "./config";
 import ConfigValue from "./configValue";
 import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
+import { FlagTracker } from "./flagTracker";
 import Loader from "./loader";
 import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
 import TelemetryUploader from "./telemetryUploader";
 import { LoggerAggregator } from "./loggerAggregator";
 import version from "./version";
+import { UiOverlay } from "./uiOverlay";
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
 
@@ -22,6 +24,7 @@ type InitParams = {
   collectEvaluationSummaries?: boolean;
   collectLoggerNames?: boolean;
   clientVersionString?: string;
+  allowToggleUi?: boolean;
 };
 
 type PollStatus =
@@ -59,6 +62,10 @@ export class Prefab {
 
   private _context: Context = new Context({});
 
+  private flagTracker: FlagTracker | undefined;
+
+  private uiOverlay: UiOverlay | undefined;
+
   async init({
     apiKey,
     context: providedContext,
@@ -69,6 +76,8 @@ export class Prefab {
     collectEvaluationSummaries = false,
     collectLoggerNames = false,
     clientVersionString = `prefab-cloud-js-${version}`,
+    // allowToggleUi = false,
+    allowToggleUi = true,
   }: InitParams) {
     const context = providedContext ?? this.context;
 
@@ -104,6 +113,12 @@ export class Prefab {
     }
 
     this.afterEvaluationCallback = afterEvaluationCallback;
+
+    if (allowToggleUi) {
+      this.flagTracker = new FlagTracker();
+      this.uiOverlay = new UiOverlay(this.flagTracker);
+      this.uiOverlay.init();
+    }
 
     return this.load();
   }
@@ -214,7 +229,11 @@ export class Prefab {
   }
 
   isEnabled(key: string): boolean {
-    return this.get(key) === true;
+    const value = this.get(key);
+    if (this.flagTracker) {
+      this.flagTracker.trackFlag(key, value);
+    }
+    return value === true;
   }
 
   get(key: string): ConfigValue {
@@ -234,6 +253,10 @@ export class Prefab {
     const value = config?.value;
 
     if (!key.startsWith(loggerPrefix)) {
+      if (this.flagTracker) {
+        this.flagTracker.trackFlag(key, value);
+      }
+
       if (this.collectEvaluationSummaries) {
         setTimeout(() => this.evalutionSummaryAggregator?.record(config));
       }
@@ -242,6 +265,17 @@ export class Prefab {
     }
 
     return value;
+  }
+
+  requestedFlags(): { key: string; value: ConfigValue }[] {
+    if (!this.loaded || !this.flagTracker) {
+      return [];
+    }
+
+    return Array.from(this.flagTracker.requestedFlags.entries()).map(([key, value]) => ({
+      key,
+      value,
+    }));
   }
 
   shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {

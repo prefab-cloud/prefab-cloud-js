@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5 - 2024-05-31
+
+- Add support for durations (#49)
+
 ## 0.2.4 - 2024-05-03
 
 - Add support for JSON config values

@@ -1,5 +1,5 @@
 import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
-import { Prefab, Config, Context } from "../index";
+import { Prefab, Config, Context, Duration } from "../index";
 import { DEFAULT_TIMEOUT } from "./apiHelpers";
 import { wait } from "../test/wait";
 import version from "./version";
@@ -252,12 +252,41 @@ describe("setConfig", () => {
 
 test("get", () => {
   prefab.setConfig({
-    turbo: {
-      double: 2.5,
+    turbo: { double: 2.5 },
+    durationExample: {
+      duration: {
+        seconds: "1884",
+        definition: "PT31.4M",
+      },
+    },
+    jsonExample: {
+      json: `{ "foo": "bar", "baz": 123 }`,
     },
   });
 
   expect(prefab.get("turbo")).toEqual(2.5);
+
+  expect(prefab.get("jsonExample")).toStrictEqual({ foo: "bar", baz: 123 });
+
+  // You _can_ use `get` for durations but you probably want `getDuration` to save yourself some `as` casting
+  expect(prefab.get("durationExample")).toStrictEqual({ ms: 1884 * 1000, seconds: 1884 });
+  // e.g.
+  // expect((prefab.get("durationExample") as Duration).seconds).toEqual(1884);
+  // expect((prefab.get("durationExample") as Duration).ms).toEqual(1884 * 1000);
+});
+
+test("getDuration", () => {
+  prefab.setConfig({
+    durationExample: {
+      duration: {
+        seconds: "1884",
+        definition: "PT31.4M",
+      },
+    },
+  });
+
+  expect(prefab.getDuration("durationExample")!.seconds).toEqual(1884);
+  expect(prefab.getDuration("durationExample")!.ms).toEqual(1884 * 1000);
 });
 
 test("isEnabled", () => {

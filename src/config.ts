@@ -8,6 +8,25 @@ export type ConfigEvaluationMetadata = {
   configId: string;
 };
 
+const valueFor = (value: { [key: string]: any }, type: string, key: string): ConfigValue => {
+  switch (type) {
+    case "json":
+      try {
+        return JSON.parse(value[type]);
+      } catch (e) {
+        console.error(`Error parsing JSON from Prefab config ${key}`, e, value[type]);
+        return value[type].json;
+      }
+    case "duration":
+      return {
+        seconds: Number(value[type].seconds),
+        ms: Number(value[type].seconds) * 1000,
+      };
+    default:
+      return value[type];
+  }
+};
+
 export class Config {
   key: ConfigKey;
 
@@ -40,7 +59,7 @@ export class Config {
 
         configs[key] = new Config(
           key,
-          type === "json" ? JSON.parse(value[type].json) : value[type],
+          valueFor(value, type, key),
           type,
           value.configEvaluationMetadata
             ? this.parseRawMetadata(value.configEvaluationMetadata)

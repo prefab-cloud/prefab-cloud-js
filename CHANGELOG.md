@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.6 - 2024-05-31
+
+- Fix JSON parsing regression (#50)
+
 ## 0.2.5 - 2024-05-31
 
 - Add support for durations (#49)

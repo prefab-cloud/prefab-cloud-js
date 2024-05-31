@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { Config } from "./config";
-import ConfigValue from "./configValue";
+import ConfigValue, { type Duration } from "./configValue";
 import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
 import Loader from "./loader";
@@ -242,6 +242,20 @@ export class Prefab {
     }
 
     return value;
+  }
+
+  getDuration(key: string): Duration | undefined {
+    const value = this.get(key);
+
+    if (!value) {
+      return undefined;
+    }
+
+    if (!value.hasOwnProperty("seconds") || !value.hasOwnProperty("ms")) {
+      throw new Error(`Value for key "${key}" is not a duration`);
+    }
+
+    return value as Duration;
   }
 
   shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {

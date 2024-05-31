@@ -260,7 +260,7 @@ test("get", () => {
       },
     },
     jsonExample: {
-      json: `{ "foo": "bar", "baz": 123 }`,
+      json: { json: `{ "foo": "bar", "baz": 123 }` },
     },
   });
 

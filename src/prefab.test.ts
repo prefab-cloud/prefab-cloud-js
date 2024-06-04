@@ -1,5 +1,5 @@
 import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
-import { Prefab, Config, Context, Duration } from "../index";
+import { Prefab, Config, Context } from "../index";
 import { DEFAULT_TIMEOUT } from "./apiHelpers";
 import { wait } from "../test/wait";
 import version from "./version";
@@ -10,12 +10,19 @@ let prefab = new Prefab();
 
 type InitParams = Parameters<typeof prefab.init>[0];
 
+const defaultTestInitParams: InitParams = {
+  apiKey: "1234",
+  context: new Context({ user: { device: "desktop" } }),
+  collectEvaluationSummaries: false,
+};
+
 beforeEach(() => {
   prefab = new Prefab();
 });
 
 afterEach(() => {
   prefab.stopPolling();
+  prefab.stopTelemetry();
 });
 
 describe("init", () => {
@@ -23,13 +30,9 @@ describe("init", () => {
     const data = { values: { turbo: { double: 2.5 } } };
     fetchMock.mockResponse(JSON.stringify(data));
 
-    const params: InitParams = {
-      apiKey: "1234",
-      context: new Context({ user: { device: "desktop" } }),
-    };
     expect(prefab.loaded).toBe(false);
 
-    await prefab.init(params);
+    await prefab.init(defaultTestInitParams);
 
     expect(prefab.configs).toEqual({
       turbo: new Config("turbo", 2.5, "double"),
@@ -40,14 +43,9 @@ describe("init", () => {
   it("returns falsy responses for flag checks if it cannot load config", async () => {
     fetchMock.mockReject(new Error("Network error"));
 
-    const params: InitParams = {
-      apiKey: "1234",
-      context: new Context({ user: { device: "desktop" } }),
-    };
-
     expect(prefab.loaded).toBe(false);
 
-    prefab.init(params).catch((reason: any) => {
+    prefab.init(defaultTestInitParams).catch((reason: any) => {
       expect(reason.message).toEqual("Network error");
       expect(prefab.configs).toEqual({});
 
@@ -61,10 +59,7 @@ describe("init", () => {
     const data = { values: { turbo: { double: 2.5 } } };
     fetchMock.mockResponse(JSON.stringify(data));
 
-    const config: InitParams = {
-      apiKey: "1234",
-      context: new Context({ user: { device: "desktop" } }),
-    };
+    const config: InitParams = { ...defaultTestInitParams };
     expect(prefab.loaded).toBe(false);
 
     await prefab.init(config);
@@ -92,14 +87,25 @@ describe("init", () => {
       };
     });
 
+    expect(prefab.loaded).toBe(false);
+
+    await prefab.init(defaultTestInitParams);
+    expect(headersAsserted).toBe(true);
+  });
+
+  it("allows opting out of eval summary telemetry", async () => {
     const params: InitParams = {
       apiKey: "1234",
       context: new Context({ user: { device: "desktop" } }),
     };
-    expect(prefab.loaded).toBe(false);
 
     await prefab.init(params);
-    expect(headersAsserted).toBe(true);
+    expect(prefab.isCollectingEvaluationSummaries()).toBe(true);
+
+    params.collectEvaluationSummaries = false;
+
+    await prefab.init(params);
+    expect(prefab.isCollectingEvaluationSummaries()).toBe(false);
   });
 
   it("can override the client version", async () => {
@@ -116,11 +122,7 @@ describe("init", () => {
       };
     });
 
-    const params: InitParams = {
-      apiKey: "1234",
-      context: new Context({ user: { device: "desktop" } }),
-      clientVersionString: versionOverride,
-    };
+    const params: InitParams = { ...defaultTestInitParams, clientVersionString: versionOverride };
     expect(prefab.loaded).toBe(false);
 
     await prefab.init(params);
@@ -134,12 +136,7 @@ describe("poll", () => {
     const frequencyInMs = 25;
     fetchMock.mockResponse(JSON.stringify(data));
 
-    const config: InitParams = {
-      apiKey: "1234",
-      context: new Context({ user: { device: "desktop" } }),
-    };
-
-    await prefab.init(config);
+    await prefab.init(defaultTestInitParams);
 
     if (!prefab.loader) {
       throw new Error("Expected loader to be set");
@@ -180,12 +177,7 @@ describe("poll", () => {
     const frequencyInMs = 25;
     fetchMock.mockResponse(JSON.stringify(data));
 
-    const config: InitParams = {
-      apiKey: "1234",
-      context: new Context({ user: { device: "desktop" } }),
-    };
-
-    await prefab.init(config);
+    await prefab.init(defaultTestInitParams);
 
     if (!prefab.loader) {
       throw new Error("Expected loader to be set");
@@ -277,6 +269,7 @@ test("get", () => {
 
 test("getDuration", () => {
   prefab.setConfig({
+    turbo: { double: 2.5 },
     durationExample: {
       duration: {
         seconds: "1884",
@@ -285,8 +278,14 @@ test("getDuration", () => {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   expect(prefab.getDuration("durationExample")!.seconds).toEqual(1884);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   expect(prefab.getDuration("durationExample")!.ms).toEqual(1884 * 1000);
+
+  expect(() => {
+    prefab.getDuration("turbo");
+  }).toThrowError('Value for key "turbo" is not a duration');
 });
 
 test("isEnabled", () => {
@@ -433,9 +432,7 @@ describe("updateContext", () => {
 
     const initialContext = new Context({ user: { device: "desktop" } });
 
-    const config: InitParams = { apiKey: "1234", context: initialContext };
-
-    await prefab.init(config);
+    await prefab.init(defaultTestInitParams);
 
     if (!prefab.loader) {
       throw new Error("Expected loader to be set");

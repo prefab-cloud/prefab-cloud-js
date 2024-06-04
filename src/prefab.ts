@@ -43,7 +43,7 @@ export class Prefab {
 
   private _instanceHash: string = uuid();
 
-  private collectEvaluationSummaries = false;
+  private collectEvaluationSummaries = true;
 
   private collectLoggerNames = false;
 
@@ -66,7 +66,7 @@ export class Prefab {
     apiEndpoint,
     timeout = undefined,
     afterEvaluationCallback = () => {},
-    collectEvaluationSummaries = false,
+    collectEvaluationSummaries = true,
     collectLoggerNames = false,
     clientVersionString = `prefab-cloud-js-${version}`,
   }: InitParams) {
@@ -208,6 +208,13 @@ export class Prefab {
     this._pollStatus = { status: "stopped" };
   }
 
+  stopTelemetry() {
+    if (this.telemetryUploader) {
+      this.evalutionSummaryAggregator?.stop();
+      this.loggerAggregator?.stop();
+    }
+  }
+
   setConfig(rawValues: { [key: string]: any }) {
     this._configs = Config.digest(rawValues);
     this.loaded = true;
@@ -251,7 +258,10 @@ export class Prefab {
       return undefined;
     }
 
-    if (!value.hasOwnProperty("seconds") || !value.hasOwnProperty("ms")) {
+    if (
+      !Object.prototype.hasOwnProperty.call(value, "seconds") ||
+      !Object.prototype.hasOwnProperty.call(value, "ms")
+    ) {
       throw new Error(`Value for key "${key}" is not a duration`);
     }
 
@@ -270,6 +280,14 @@ export class Prefab {
     }
 
     return shouldLog({ ...args, get: this.get.bind(this) });
+  }
+
+  isCollectingEvaluationSummaries(): boolean {
+    return this.collectEvaluationSummaries;
+  }
+
+  isCollectingLoggerNames(): boolean {
+    return this.collectLoggerNames;
   }
 }
 

@@ -14,6 +14,7 @@ const valueFor = (value: { [key: string]: any }, type: string, key: string): Con
       try {
         return JSON.parse(value[type].json);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(`Error parsing JSON from Prefab config ${key}`, e, value[type].json);
         return value[type].json;
       }

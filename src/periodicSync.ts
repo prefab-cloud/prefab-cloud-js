@@ -12,6 +12,8 @@ abstract class PeriodicSync<T> {
 
   private name: string;
 
+  private timeoutID: ReturnType<typeof setTimeout> | undefined;
+
   constructor(client: typeof prefab, name: string, syncInterval?: number) {
     this.client = client;
     this.name = name;
@@ -19,6 +21,10 @@ abstract class PeriodicSync<T> {
     this.startAt = new Date();
 
     this.startPeriodicSync(syncInterval);
+  }
+
+  stop(): void {
+    clearTimeout(this.timeoutID);
   }
 
   sync(): void {
@@ -53,7 +59,7 @@ abstract class PeriodicSync<T> {
     this.logInternal(
       `Scheduled next sync in ${interval} ms for ${this.name} instanceHash=${this.client.instanceHash}`
     );
-    setTimeout(() => {
+    this.timeoutID = setTimeout(() => {
       this.sync();
       this.scheduleNextSync(); // Schedule the next sync after the current one completes
     }, interval);

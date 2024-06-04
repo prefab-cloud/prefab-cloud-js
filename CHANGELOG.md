@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 - 2024-06-04
+
+- collectEvaluationSummaries is now opt-out (#51)
+
 ## 0.2.6 - 2024-05-31
 
 - Fix JSON parsing regression (#50)

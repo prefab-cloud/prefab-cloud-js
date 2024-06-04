@@ -37,7 +37,7 @@
     "prettier:fix": "npm run prettier --write .",
     "release": "npm run prettier:fix; npm run lint:fix; npm run test",
     "test": "npm run build && jest --verbose --detectOpenHandles dist/",
-    "version": "echo 'version' && npm run release && npm run prettier:fix; git add src/version.ts"
+    "version": "echo 'version' && npm run release && npm run prettier:fix"
   },
   "repository": {
     "type": "git",

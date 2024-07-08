@@ -1,4 +1,5 @@
 import { headers, DEFAULT_TIMEOUT } from "./apiHelpers";
+import { EvaluationPayload } from "./config";
 import Context from "./context";
 
 export type CollectContextModeType = "NONE" | "SHAPE_ONLY" | "PERIODIC_EXAMPLE";
@@ -19,6 +20,10 @@ export type Headers = {
 export type FetchOptions = {
   headers: Headers;
 };
+
+const defaultEndpoints = ["belt", "suspenders"].map(
+  (subdomain) => `https://${subdomain}.prefab.cloud/api/v2`
+);
 
 export default class Loader {
   apiKey: string;
@@ -47,10 +52,7 @@ export default class Loader {
   }: LoaderParams) {
     this.apiKey = apiKey;
     this.context = context;
-    this.endpoints = endpoints || [
-      "https://api-prefab-cloud.global.ssl.fastly.net/api/v1",
-      "https://api.prefab.cloud/api/v1",
-    ];
+    this.endpoints = endpoints || defaultEndpoints;
     this.timeout = timeout || DEFAULT_TIMEOUT;
     this.collectContextMode = collectContextMode;
     this.clientVersion = clientVersion;
@@ -84,7 +86,11 @@ export default class Loader {
         throw new Error(`${response.status} ${response.statusText}`);
       })
       .then((data) => {
-        resolve(data.values);
+        if (!("evaluations" in data)) {
+          throw new Error(`Invalid payload:${JSON.stringify(data)}`);
+        }
+
+        resolve(data as EvaluationPayload);
       })
       .catch((error) => {
         this.clearAbortTimeout();

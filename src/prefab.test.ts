@@ -27,7 +27,7 @@ afterEach(() => {
 
 describe("init", () => {
   it("works when the request is successful", async () => {
-    const data = { values: { turbo: { double: 2.5 } } };
+    const data = { evaluations: { turbo: { value: { double: 2.5 } } } };
     fetchMock.mockResponse(JSON.stringify(data));
 
     expect(prefab.loaded).toBe(false);
@@ -35,7 +35,7 @@ describe("init", () => {
     await prefab.init(defaultTestInitParams);
 
     expect(prefab.configs).toEqual({
-      turbo: new Config("turbo", 2.5, "double"),
+      turbo: new Config("turbo", 2.5, "double", { double: 2.5 }),
     });
     expect(prefab.loaded).toBe(true);
   });
@@ -56,7 +56,7 @@ describe("init", () => {
   });
 
   it("allows passing a timeout down to the loader", async () => {
-    const data = { values: { turbo: { double: 2.5 } } };
+    const data = { evaluations: { turbo: { value: { double: 2.5 } } } };
     fetchMock.mockResponse(JSON.stringify(data));
 
     const config: InitParams = { ...defaultTestInitParams };
@@ -83,7 +83,7 @@ describe("init", () => {
 
       return {
         status: 200,
-        body: "{}",
+        body: '{"evaluations": {}}',
       };
     });
 
@@ -121,7 +121,7 @@ describe("init", () => {
 
       return {
         status: 200,
-        body: "{}",
+        body: `{ "evaluations": {} }`,
       };
     });
 
@@ -139,7 +139,7 @@ describe("init", () => {
 
 describe("poll", () => {
   it("takes a frequencyInMs and updates on that interval", async () => {
-    const data = { values: {} };
+    const data = { evaluations: {} };
     const frequencyInMs = 25;
     fetchMock.mockResponse(JSON.stringify(data));
 
@@ -180,7 +180,7 @@ describe("poll", () => {
   it("is reset when you call poll() again", async () => {
     jest.spyOn(globalThis, "clearTimeout");
 
-    const data = { values: {} };
+    const data = { evaluations: {} };
     const frequencyInMs = 25;
     fetchMock.mockResponse(JSON.stringify(data));
 
@@ -208,40 +208,17 @@ describe("poll", () => {
 });
 
 describe("setConfig", () => {
-  it("works when types are provided", () => {
-    expect(prefab.configs).toEqual({});
-
-    prefab.setConfig({
-      turbo: {
-        double: 2.5,
-      },
-
-      foo: {
-        bool: true,
-      },
-    });
-
-    expect(prefab.configs).toEqual({
-      turbo: new Config("turbo", 2.5, "double"),
-      foo: new Config("foo", true, "bool"),
-    });
-
-    expect(prefab.isEnabled("foo")).toBe(true);
-    expect(prefab.get("turbo")).toEqual(2.5);
-  });
-
   it("works when types are not provided", () => {
     expect(prefab.configs).toEqual({});
 
     prefab.setConfig({
       turbo: 2.5,
-
       foo: true,
     });
 
     expect(prefab.configs).toEqual({
-      turbo: new Config("turbo", 2.5, "unknown"),
-      foo: new Config("foo", true, "unknown"),
+      turbo: new Config("turbo", 2.5, "number"),
+      foo: new Config("foo", true, "boolean"),
     });
 
     expect(prefab.isEnabled("foo")).toBe(true);
@@ -251,15 +228,10 @@ describe("setConfig", () => {
 
 test("get", () => {
   prefab.setConfig({
-    turbo: { double: 2.5 },
-    durationExample: {
-      duration: {
-        seconds: "1884",
-        definition: "PT31.4M",
-      },
-    },
-    jsonExample: {
-      json: { json: `{ "foo": "bar", "baz": 123 }` },
+    evaluations: {
+      turbo: { value: { double: 2.5 } },
+      durationExample: { value: { duration: { millis: 1884000, definition: "PT1884S" } } },
+      jsonExample: { value: { json: `{ "foo": "bar", "baz": 123 }` } },
     },
   });
 
@@ -268,7 +240,10 @@ test("get", () => {
   expect(prefab.get("jsonExample")).toStrictEqual({ foo: "bar", baz: 123 });
 
   // You _can_ use `get` for durations but you probably want `getDuration` to save yourself some `as` casting
-  expect(prefab.get("durationExample")).toStrictEqual({ ms: 1884 * 1000, seconds: 1884 });
+  expect(prefab.get("durationExample")).toStrictEqual({
+    ms: 1884 * 1000,
+    seconds: 1884,
+  });
   // e.g.
   // expect((prefab.get("durationExample") as Duration).seconds).toEqual(1884);
   // expect((prefab.get("durationExample") as Duration).ms).toEqual(1884 * 1000);
@@ -276,11 +251,10 @@ test("get", () => {
 
 test("getDuration", () => {
   prefab.setConfig({
-    turbo: { double: 2.5 },
-    durationExample: {
-      duration: {
-        seconds: "1884",
-        definition: "PT31.4M",
+    evaluations: {
+      turbo: { value: { double: 2.5 } },
+      durationExample: {
+        value: { duration: { millis: 1884000, definition: "PT1884S" } },
       },
     },
   });
@@ -299,11 +273,7 @@ test("isEnabled", () => {
   // it is false when no config is loaded
   expect(prefab.isEnabled("foo")).toBe(false);
 
-  prefab.setConfig({
-    foo: {
-      bool: true,
-    },
-  });
+  prefab.setConfig({ foo: true });
 
   expect(prefab.isEnabled("foo")).toBe(true);
 });
@@ -329,9 +299,7 @@ describe("shouldLog", () => {
 
   test("compares against the value when present", () => {
     prefab.setConfig({
-      "log-level.example": {
-        logLevel: "INFO",
-      },
+      "log-level.example": "INFO",
     });
 
     expect(
@@ -355,15 +323,9 @@ describe("shouldLog", () => {
     const loggerName = "some.test.name.with.more.levels";
 
     prefab.setConfig({
-      "log-level.some.test.name": {
-        logLevel: "TRACE",
-      },
-      "log-level.some.test": {
-        logLevel: "DEBUG",
-      },
-      "log-level.irrelevant": {
-        logLevel: "ERROR",
-      },
+      "log-level.some.test.name": "TRACE",
+      "log-level.some.test": "DEBUG",
+      "log-level.irrelevant": "ERROR",
     });
 
     expect(
@@ -401,9 +363,7 @@ describe("shouldLog", () => {
 
   it("can use the root log level setting if nothing is found in the hierarchy", () => {
     prefab.setConfig({
-      "log-level": {
-        logLevel: "INFO",
-      },
+      "log-level": "INFO",
     });
 
     expect(
@@ -433,7 +393,7 @@ describe("updateContext", () => {
 
       return {
         status: 200,
-        body: "{}",
+        body: `{"evaluations": {}}`,
       };
     });
 
@@ -453,7 +413,7 @@ describe("updateContext", () => {
     }
 
     expect(invokedUrl).toStrictEqual(
-      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${initialContext.encode()}?collectContextMode=PERIODIC_EXAMPLE`
+      `https://belt.prefab.cloud/api/v2/configs/eval-with-context/${initialContext.encode()}?collectContextMode=PERIODIC_EXAMPLE`
     );
 
     const newContext = new Context({ user: { device: "mobile" } });
@@ -464,7 +424,7 @@ describe("updateContext", () => {
     expect(prefab.context).toStrictEqual(newContext);
 
     expect(invokedUrl).toStrictEqual(
-      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${newContext.encode()}?collectContextMode=PERIODIC_EXAMPLE`
+      `https://belt.prefab.cloud/api/v2/configs/eval-with-context/${newContext.encode()}?collectContextMode=PERIODIC_EXAMPLE`
     );
   });
 });

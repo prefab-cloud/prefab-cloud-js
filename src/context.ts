@@ -25,6 +25,7 @@ export default class Context {
 
   constructor(contexts: Contexts) {
     if (!Object.values(contexts).every((item: any) => typeof item === "object")) {
+      // eslint-disable-next-line no-console
       console.error("Context must be an object where the value of each key is also an object");
     }
 
@@ -33,6 +34,7 @@ export default class Context {
         Object.values(item).some((value: any) => typeof value === "object")
       )
     ) {
+      // eslint-disable-next-line no-console
       console.error("Nested objects are not supported in context values at this time");
     }
 

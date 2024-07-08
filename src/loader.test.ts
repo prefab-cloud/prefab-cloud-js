@@ -18,22 +18,22 @@ describe("overriding endpoints", () => {
     loader = new Loader({ context, apiKey });
 
     expect(loader.endpoints).toStrictEqual([
-      "https://api-prefab-cloud.global.ssl.fastly.net/api/v1",
-      "https://api.prefab.cloud/api/v1",
+      "https://belt.prefab.cloud/api/v2",
+      "https://suspenders.prefab.cloud/api/v2",
     ]);
   });
 
   it("supports overriding the endpoints", () => {
     const endpoints = [
-      "https://example.global.ssl.fastly.net/api/v1",
-      "https://example.com/api/v1",
+      "https://example.global.ssl.fastly.net/api/v2",
+      "https://example.com/api/v2",
     ];
 
     loader = new Loader({ context, apiKey, endpoints });
 
     expect(loader.endpoints).toStrictEqual([
-      "https://example.global.ssl.fastly.net/api/v1",
-      "https://example.com/api/v1",
+      "https://example.global.ssl.fastly.net/api/v2",
+      "https://example.com/api/v2",
     ]);
   });
 });
@@ -51,7 +51,7 @@ describe("load", () => {
             setTimeout(() => {
               resolve({
                 status: 200,
-                body: JSON.stringify({ values: { failover: { bool: false } } }),
+                body: JSON.stringify({ evaluations: { failover: { value: { bool: false } } } }),
               });
             }, TIMEOUT * 2);
           });
@@ -60,7 +60,7 @@ describe("load", () => {
         if (url.pathname.startsWith("/failover/")) {
           return {
             status: 200,
-            body: JSON.stringify({ values: { failover: { bool: true } } }),
+            body: JSON.stringify({ evaluations: { failover: { value: { bool: true } } } }),
           };
         }
 
@@ -80,21 +80,16 @@ describe("load", () => {
 
       await wait(TIMEOUT);
 
-      const results = (await promise) as { failover: { bool: boolean } };
-      expect(results.failover.bool).toStrictEqual(true);
+      const results = (await promise) as any;
+      expect(results.evaluations.failover.value.bool).toStrictEqual(true);
     });
   });
 
   describe("when the timeout is not reached", () => {
     const data = {
-      values: {
-        turbo: {
-          double: 2.5,
-        },
-
-        foo: {
-          bool: true,
-        },
+      evaluations: {
+        turbo: { value: { double: 2.5 } },
+        foo: { value: { bool: true } },
       },
     };
 
@@ -123,17 +118,17 @@ describe("load", () => {
       loader = new Loader({ context, apiKey, clientVersion: `prefab-cloud-js-${version}` });
 
       const results = await loader.load();
-      expect(results).toStrictEqual(data.values);
+      expect(results).toStrictEqual(data);
       expect(fetchCount).toStrictEqual(1);
 
       if (!requestUrl || !requestHeaders) {
         throw new Error("Fetch hasn't happened");
       }
 
-      expect(requestUrl.host).toEqual("api-prefab-cloud.global.ssl.fastly.net");
+      expect(requestUrl.host).toEqual("belt.prefab.cloud");
 
       expect(requestUrl.pathname).toStrictEqual(
-        "/api/v1/configs/eval-with-context/eyJjb250ZXh0cyI6W3sidHlwZSI6InVzZXIiLCJ2YWx1ZXMiOnsiaWQiOnsic3RyaW5nIjoiMTIzIn0sImVtYWlsIjp7InN0cmluZyI6InRlc3RAZXhhbXBsZS5jb20ifX19LHsidHlwZSI6ImRldmljZSIsInZhbHVlcyI6eyJtb2JpbGUiOnsiYm9vbCI6dHJ1ZX19fV19"
+        "/api/v2/configs/eval-with-context/eyJjb250ZXh0cyI6W3sidHlwZSI6InVzZXIiLCJ2YWx1ZXMiOnsiaWQiOnsic3RyaW5nIjoiMTIzIn0sImVtYWlsIjp7InN0cmluZyI6InRlc3RAZXhhbXBsZS5jb20ifX19LHsidHlwZSI6ImRldmljZSIsInZhbHVlcyI6eyJtb2JpbGUiOnsiYm9vbCI6dHJ1ZX19fV19"
       );
 
       expect(requestHeaders.get("Authorization")).toStrictEqual("Basic dTphcGlLZXk=");
@@ -166,12 +161,12 @@ describe("load", () => {
       const results = await loader.load();
 
       expect(fetchCount).toStrictEqual(2);
-      expect(results).toStrictEqual(data.values);
+      expect(results).toStrictEqual(data);
 
       if (!requestUrl) {
         throw new Error("Last fetch hasn't happened");
       }
-      expect(requestUrl.host).toStrictEqual("api.prefab.cloud");
+      expect(requestUrl.host).toStrictEqual("suspenders.prefab.cloud");
     });
 
     it("fails when no endpoints are reachable", async () => {
@@ -194,7 +189,7 @@ describe("load", () => {
           throw new Error("Last fetch hasn't happened");
         }
 
-        expect(requestUrl.host).toStrictEqual("api.prefab.cloud");
+        expect(requestUrl.host).toStrictEqual("suspenders.prefab.cloud");
       });
     });
   });

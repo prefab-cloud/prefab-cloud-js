@@ -8,7 +8,7 @@ import { PeriodicSync } from "./periodicSync";
 import { Config, ConfigEvaluationMetadata } from "./config";
 import { type prefab } from "./prefab";
 
-type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, "type"> & {
+export type ConfigEvaluationCounter = Omit<ConfigEvaluationMetadata, "type"> & {
   selectedValue: any;
   count: number;
 };
@@ -34,6 +34,29 @@ type TelemetryEvents = {
   events: TelemetryEvent[];
 };
 
+export const massageSelectedValue = (config: Config): any => {
+  if (config.rawValue && (config.type === "duration" || config.type === "json")) {
+    if (config.type === "json") {
+      return { json: config.rawValue[config.type] };
+    }
+
+    return config.rawValue[config.type];
+  }
+
+  return config.type === "stringList" ? { values: config.value } : config.value;
+};
+
+export const massageConfigForTelemetry = (
+  config: Config,
+  metadata: Omit<ConfigEvaluationMetadata, "type">
+) => ({
+  ...metadata,
+  selectedValue: {
+    [config.type]: massageSelectedValue(config),
+  },
+  count: 0,
+});
+
 class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> {
   private maxKeys: number;
 
@@ -52,13 +75,7 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
 
       // create counter entry if it doesn't exist
       if (!this.data.has(key)) {
-        this.data.set(key, {
-          ...metadata,
-          selectedValue: {
-            [config.type]: config.type === "stringList" ? { values: config.value } : config.value,
-          },
-          count: 0,
-        });
+        this.data.set(key, massageConfigForTelemetry(config, metadata));
       }
 
       // increment count

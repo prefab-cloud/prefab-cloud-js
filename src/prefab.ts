@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 
-import { Config } from "./config";
+import { Config, EvaluationPayload, RawConfigWithoutTypes } from "./config";
 import ConfigValue, { type Duration } from "./configValue";
 import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
@@ -164,7 +164,7 @@ export class Prefab {
     return this.loader
       .load()
       .then((rawValues: any) => {
-        this.setConfig(rawValues);
+        this.setConfig(rawValues as EvaluationPayload);
       })
       .finally(() => {
         if (this.pollStatus.status === "running") {
@@ -232,7 +232,7 @@ export class Prefab {
     }
   }
 
-  setConfig(rawValues: { [key: string]: any }) {
+  setConfig(rawValues: RawConfigWithoutTypes | EvaluationPayload) {
     this._configs = Config.digest(rawValues);
     this.loaded = true;
   }

@@ -1,5 +1,3 @@
-// TODO: flush on beforeunload
-
 // TODO: should we retry the data chunk if a flush fails?
 
 // TODO: pause when offline?

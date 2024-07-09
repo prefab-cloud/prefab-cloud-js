@@ -103,6 +103,13 @@ export class Prefab {
       this.loggerAggregator = new LoggerAggregator(this, 100000);
     }
 
+    if ((collectEvaluationSummaries || collectLoggerNames) && typeof window !== "undefined") {
+      window.addEventListener("beforeunload", () => {
+        this.evalutionSummaryAggregator?.sync();
+        this.loggerAggregator?.sync();
+      });
+    }
+
     this.afterEvaluationCallback = afterEvaluationCallback;
 
     return this.load();

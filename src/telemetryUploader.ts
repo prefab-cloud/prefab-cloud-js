@@ -82,6 +82,7 @@ export default class TelemetryUploader {
         Accept: "application/json",
       },
       body: JSON.stringify(data),
+      keepalive: true, // needed for flushing when the window is closed
     };
 
     const promise = new Promise((resolve, reject) => {

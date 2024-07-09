@@ -103,12 +103,10 @@ export class Prefab {
       this.loggerAggregator = new LoggerAggregator(this, 100000);
     }
 
-    if (collectEvaluationSummaries || collectLoggerNames) {
-      window.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") {
-          this.evalutionSummaryAggregator?.sync();
-          this.loggerAggregator?.sync();
-        }
+    if ((collectEvaluationSummaries || collectLoggerNames) && typeof window !== "undefined") {
+      window.addEventListener("beforeunload", () => {
+        this.evalutionSummaryAggregator?.sync();
+        this.loggerAggregator?.sync();
       });
     }
 

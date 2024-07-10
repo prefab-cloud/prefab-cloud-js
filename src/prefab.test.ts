@@ -108,12 +108,15 @@ describe("init", () => {
     expect(prefab.isCollectingEvaluationSummaries()).toBe(false);
   });
 
-  it("can override the client version", async () => {
-    const versionOverride = "prefab-cloud-react-0.11.9";
+  it("can override the client name and version", async () => {
+    const nameOverride = "prefab-cloud-react";
+    const versionOverride = "0.11.9";
     let headersAsserted = false;
 
     fetchMock.mockResponse(async (req) => {
-      expect(req.headers.get("X-PrefabCloud-Client-Version")).toStrictEqual(versionOverride);
+      expect(req.headers.get("X-PrefabCloud-Client-Version")).toStrictEqual(
+        `${nameOverride}-${versionOverride}`
+      );
       headersAsserted = true;
 
       return {
@@ -122,7 +125,11 @@ describe("init", () => {
       };
     });
 
-    const params: InitParams = { ...defaultTestInitParams, clientVersionString: versionOverride };
+    const params: InitParams = {
+      ...defaultTestInitParams,
+      clientNameString: nameOverride,
+      clientVersionString: versionOverride,
+    };
     expect(prefab.loaded).toBe(false);
 
     await prefab.init(params);

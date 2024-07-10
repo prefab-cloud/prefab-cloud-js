@@ -22,6 +22,7 @@ type InitParams = {
   collectEvaluationSummaries?: boolean;
   collectLoggerNames?: boolean;
   collectContextMode?: CollectContextModeType;
+  clientNameString?: string;
   clientVersionString?: string;
 };
 
@@ -52,6 +53,8 @@ export class Prefab {
 
   private loggerAggregator: LoggerAggregator | undefined;
 
+  public clientNameString = "prefab-cloud-js";
+
   public loaded = false;
 
   public loader: Loader | undefined;
@@ -70,7 +73,8 @@ export class Prefab {
     collectEvaluationSummaries = true,
     collectLoggerNames = false,
     collectContextMode = "PERIODIC_EXAMPLE",
-    clientVersionString = `prefab-cloud-js-${version}`,
+    clientNameString = "prefab-cloud-js",
+    clientVersionString = version,
   }: InitParams) {
     const context = providedContext ?? this.context;
 
@@ -80,20 +84,23 @@ export class Prefab {
 
     this._context = context;
 
+    this.clientNameString = clientNameString;
+    const clientNameAndVersionString = `${clientNameString}-${clientVersionString}`;
+
     this.loader = new Loader({
       apiKey,
       context,
       endpoints,
       timeout,
       collectContextMode,
-      clientVersion: clientVersionString,
+      clientVersion: clientNameAndVersionString,
     });
 
     this._telemetryUploader = new TelemetryUploader({
       apiKey,
       apiEndpoint,
       timeout,
-      clientVersion: clientVersionString,
+      clientVersion: clientNameAndVersionString,
     });
 
     this.collectEvaluationSummaries = collectEvaluationSummaries;

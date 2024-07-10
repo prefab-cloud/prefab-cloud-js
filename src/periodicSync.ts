@@ -75,11 +75,17 @@ abstract class PeriodicSync<T> {
   }
 
   protected logInternal(message: string): void {
+    const loggerName = `${this.client.clientNameString}.prefab.${this.name}`;
+
     if (
-      this.client.shouldLog({ loggerName: this.name, desiredLevel: "debug", defaultLevel: "error" })
+      this.client.shouldLog({
+        loggerName,
+        desiredLevel: "debug",
+        defaultLevel: "error",
+      })
     ) {
       // eslint-disable-next-line no-console
-      console.log(message);
+      console.log(`${loggerName}: ${message}`);
     }
   }
 }

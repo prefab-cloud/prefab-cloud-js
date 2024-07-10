@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 - 2024-07-10
+
+- Adds collectContextMode option to control context telemetry
+- Tries to flush telemetry when browser window closes
+- Improves prefix for internal logger names
+
 ## 0.3.0 - 2024-06-04
 
 - collectEvaluationSummaries is now opt-out (#51)

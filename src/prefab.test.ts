@@ -446,7 +446,7 @@ describe("updateContext", () => {
     }
 
     expect(invokedUrl).toStrictEqual(
-      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${initialContext.encode()}`
+      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${initialContext.encode()}?collectContextMode=PERIODIC_EXAMPLE`
     );
 
     const newContext = new Context({ user: { device: "mobile" } });
@@ -457,7 +457,7 @@ describe("updateContext", () => {
     expect(prefab.context).toStrictEqual(newContext);
 
     expect(invokedUrl).toStrictEqual(
-      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${newContext.encode()}`
+      `https://api-prefab-cloud.global.ssl.fastly.net/api/v1/configs/eval-with-context/${newContext.encode()}?collectContextMode=PERIODIC_EXAMPLE`
     );
   });
 });

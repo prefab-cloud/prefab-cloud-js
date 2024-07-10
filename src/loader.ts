@@ -1,11 +1,14 @@
 import { headers, DEFAULT_TIMEOUT } from "./apiHelpers";
 import Context from "./context";
 
+export type CollectContextModeType = "NONE" | "SHAPE_ONLY" | "PERIODIC_EXAMPLE";
+
 export type LoaderParams = {
   apiKey: string;
   context: Context;
   endpoints?: string[] | undefined;
   timeout?: number;
+  collectContextMode?: CollectContextModeType;
   clientVersion?: string;
 };
 
@@ -28,6 +31,8 @@ export default class Loader {
 
   abortTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
+  collectContextMode: CollectContextModeType = "PERIODIC_EXAMPLE";
+
   clientVersion: string;
 
   abortController: AbortController | undefined;
@@ -37,6 +42,7 @@ export default class Loader {
     context,
     endpoints = undefined,
     timeout,
+    collectContextMode = "PERIODIC_EXAMPLE",
     clientVersion = "",
   }: LoaderParams) {
     this.apiKey = apiKey;
@@ -46,11 +52,14 @@ export default class Loader {
       "https://api.prefab.cloud/api/v1",
     ];
     this.timeout = timeout || DEFAULT_TIMEOUT;
+    this.collectContextMode = collectContextMode;
     this.clientVersion = clientVersion;
   }
 
   url(root: string) {
-    return `${root}/configs/eval-with-context/${this.context.encode()}`;
+    return `${root}/configs/eval-with-context/${this.context.encode()}?collectContextMode=${
+      this.collectContextMode
+    }`;
   }
 
   loadFromEndpoint(
@@ -95,7 +104,9 @@ export default class Loader {
   load() {
     this.abortController?.abort();
 
-    const options = { headers: headers(this.apiKey, this.clientVersion) };
+    const options = {
+      headers: headers(this.apiKey, this.clientVersion),
+    };
 
     const promise = new Promise((resolve, reject) => {
       this.loadFromEndpoint(0, options, resolve, reject);

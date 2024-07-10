@@ -4,7 +4,7 @@ import { Config } from "./config";
 import ConfigValue, { type Duration } from "./configValue";
 import Context from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
-import Loader from "./loader";
+import Loader, { CollectContextModeType } from "./loader";
 import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
 import TelemetryUploader from "./telemetryUploader";
 import { LoggerAggregator } from "./loggerAggregator";
@@ -21,6 +21,7 @@ type InitParams = {
   afterEvaluationCallback?: EvaluationCallback;
   collectEvaluationSummaries?: boolean;
   collectLoggerNames?: boolean;
+  collectContextMode?: CollectContextModeType;
   clientVersionString?: string;
 };
 
@@ -68,6 +69,7 @@ export class Prefab {
     afterEvaluationCallback = () => {},
     collectEvaluationSummaries = true,
     collectLoggerNames = false,
+    collectContextMode = "PERIODIC_EXAMPLE",
     clientVersionString = `prefab-cloud-js-${version}`,
   }: InitParams) {
     const context = providedContext ?? this.context;
@@ -83,6 +85,7 @@ export class Prefab {
       context,
       endpoints,
       timeout,
+      collectContextMode,
       clientVersion: clientVersionString,
     });
 

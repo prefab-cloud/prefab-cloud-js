@@ -25,7 +25,7 @@ export default class Context {
 
   constructor(contexts: Contexts) {
     if (!Object.values(contexts).every((item: any) => typeof item === "object")) {
-      throw new Error("Context must be an array of objects");
+      console.error("Context must be an array of objects");
     }
 
     if (
@@ -33,7 +33,7 @@ export default class Context {
         Object.values(item).some((value: any) => typeof value === "object")
       )
     ) {
-      throw new Error("Nested objects are not supported in context values at this time");
+      console.error("Nested objects are not supported in context values at this time");
     }
 
     this.contexts = contexts;

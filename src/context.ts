@@ -24,6 +24,18 @@ export default class Context {
   contexts: Contexts;
 
   constructor(contexts: Contexts) {
+    if (!Object.values(contexts).every((item: any) => typeof item === "object")) {
+      throw new Error("Context must be an array of objects");
+    }
+
+    if (
+      Object.values(contexts).some((item: any) =>
+        Object.values(item).some((value: any) => typeof value === "object")
+      )
+    ) {
+      throw new Error("Nested objects are not supported in context values at this time");
+    }
+
     this.contexts = contexts;
   }
 

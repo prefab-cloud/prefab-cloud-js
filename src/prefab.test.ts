@@ -55,6 +55,36 @@ describe("init", () => {
     expect(prefab.loaded).toBe(false);
   });
 
+  it("validates the context object", async () => {
+    const data = { values: { turbo: { double: 2.5 } } };
+    fetchMock.mockResponse(JSON.stringify(data));
+
+    // does not throw with valid context
+    expect(() => {
+      prefab.init(defaultTestInitParams);
+    }).not.toThrow();
+
+    // throws without parent objects
+    expect(() => {
+      prefab.init({
+        apiKey: "1234",
+        // @ts-expect-error - testing invalid data type
+        context: new Context({ device: "desktop" }),
+        collectEvaluationSummaries: false,
+      });
+    }).toThrow();
+
+    // throws with nested objects
+    expect(() => {
+      prefab.init({
+        apiKey: "1234",
+        // @ts-expect-error - testing invalid data type
+        context: new Context({ user: { device: "desktop", nested: { name: "jeff" } } }),
+        collectEvaluationSummaries: false,
+      });
+    }).toThrow();
+  });
+
   it("allows passing a timeout down to the loader", async () => {
     const data = { values: { turbo: { double: 2.5 } } };
     fetchMock.mockResponse(JSON.stringify(data));

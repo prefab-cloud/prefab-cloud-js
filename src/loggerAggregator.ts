@@ -74,17 +74,13 @@ class LoggerAggregator extends PeriodicSync<LoggerCounter> {
   }
 
   protected flush(toShip: Map<string, LoggerCounter>, startAtWas: Date): void {
-    this.logInternal(`Flushing ${toShip.size} logger counts`);
-
     const loggers = {
       startAt: startAtWas.getTime(),
       endAt: new Date().getTime(),
       loggers: Array.from(toShip.values()),
     };
 
-    this.client.telemetryUploader?.post(this.events(loggers)).then(() => {
-      this.logInternal(`Uploaded ${toShip.size} logger counts`);
-    });
+    this.client.telemetryUploader?.post(this.events(loggers));
   }
 
   private events(loggers: LoggersTelemetryEvent): TelemetryEvents {

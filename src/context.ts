@@ -25,7 +25,7 @@ export default class Context {
 
   constructor(contexts: Contexts) {
     if (!Object.values(contexts).every((item: any) => typeof item === "object")) {
-      console.error("Context must be an array of objects");
+      console.error("Context must be an object where the value of each key is also an object");
     }
 
     if (

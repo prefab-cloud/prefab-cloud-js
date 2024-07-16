@@ -24,7 +24,9 @@ describe("constructor", () => {
     // errors without parent objects
     // @ts-expect-error - testing invalid data type
     context = new Context({ device: "desktop" });
-    expect(consoleErrorSpy).toHaveBeenCalledWith("Context must be an array of objects");
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Context must be an object where the value of each key is also an object"
+    );
 
     // errors with nested objects
     // @ts-expect-error - testing invalid data type

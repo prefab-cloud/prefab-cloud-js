@@ -13,6 +13,31 @@ describe("constructor", () => {
       team: { name: "Sales", isCostCenter: false },
     });
   });
+
+  it("validates the context object", async () => {
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    // does not error with valid context
+    let context = new Context({ user: { device: "desktop" } });
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    // errors without parent objects
+    // @ts-expect-error - testing invalid data type
+    context = new Context({ device: "desktop" });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Context must be an object where the value of each key is also an object"
+    );
+
+    // errors with nested objects
+    // @ts-expect-error - testing invalid data type
+    // eslint-disable-next-line
+    context = new Context({ user: { device: "desktop", nested: { name: "jeff" } } });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Nested objects are not supported in context values at this time"
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
 });
 
 describe("encode", () => {

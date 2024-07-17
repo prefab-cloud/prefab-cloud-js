@@ -30,7 +30,7 @@ abstract class PeriodicSync<T> {
   sync(): void {
     if (this.data.size === 0) return;
 
-    this.logInternal(`Syncing ${this.data.size} items`);
+    this.logInternal(`${this.name} syncing ${this.data.size} items`);
 
     const startAtWas = this.startAt;
     this.startAt = new Date();
@@ -56,9 +56,6 @@ abstract class PeriodicSync<T> {
 
   private scheduleNextSync() {
     const interval = this.syncInterval();
-    this.logInternal(
-      `Scheduled next sync in ${interval} ms for ${this.name} instanceHash=${this.client.instanceHash}`
-    );
     this.timeoutID = setTimeout(() => {
       this.sync();
       this.scheduleNextSync(); // Schedule the next sync after the current one completes
@@ -78,11 +75,14 @@ abstract class PeriodicSync<T> {
     const loggerName = `${this.client.clientNameString}.prefab.${this.name}`;
 
     if (
-      this.client.shouldLog({
-        loggerName,
-        desiredLevel: "debug",
-        defaultLevel: "error",
-      })
+      this.client.shouldLog(
+        {
+          loggerName,
+          desiredLevel: "debug",
+          defaultLevel: "error",
+        },
+        false // synchronous so that this log ends up in the current batch
+      )
     ) {
       // eslint-disable-next-line no-console
       console.log(`${loggerName}: ${message}`);

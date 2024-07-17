@@ -68,17 +68,13 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
   }
 
   protected flush(toShip: Map<string, ConfigEvaluationCounter>, startAtWas: Date): void {
-    this.logInternal(`Flushing ${toShip.size} summaries`);
-
     const summaries = {
       start: startAtWas.getTime(),
       end: new Date().getTime(),
       summaries: EvaluationSummaryAggregator.summaries(toShip),
     };
 
-    this.client.telemetryUploader?.post(this.events(summaries)).then(() => {
-      this.logInternal(`Uploaded ${toShip.size} summaries`);
-    });
+    this.client.telemetryUploader?.post(this.events(summaries));
   }
 
   private static summaries(data: Map<string, ConfigEvaluationCounter>): ConfigEvaluationSummary[] {

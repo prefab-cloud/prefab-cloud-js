@@ -285,15 +285,15 @@ export class Prefab {
     return value as Duration;
   }
 
-  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">): boolean {
+  shouldLog(args: Omit<Parameters<typeof shouldLog>[0], "get">, async = true): boolean {
     if (this.collectLoggerNames && isValidLogLevel(args.desiredLevel)) {
-      setTimeout(
-        () =>
-          this.loggerAggregator?.record(
-            args.loggerName,
-            args.desiredLevel.toUpperCase() as Severity
-          )
-      );
+      const record = () =>
+        this.loggerAggregator?.record(args.loggerName, args.desiredLevel.toUpperCase() as Severity);
+      if (async) {
+        setTimeout(record);
+      } else {
+        record();
+      }
     }
 
     return shouldLog({ ...args, get: this.get.bind(this) });

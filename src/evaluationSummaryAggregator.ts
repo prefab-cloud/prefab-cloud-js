@@ -54,7 +54,9 @@ class EvaluationSummaryAggregator extends PeriodicSync<ConfigEvaluationCounter> 
       if (!this.data.has(key)) {
         this.data.set(key, {
           ...metadata,
-          selectedValue: { [config.type]: config.value },
+          selectedValue: {
+            [config.type]: config.type === "stringList" ? { values: config.value } : config.value,
+          },
           count: 0,
         });
       }

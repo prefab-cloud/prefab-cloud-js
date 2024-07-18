@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4 - 2024-07-18
+
+- Fixes error when uploading eval telemetry for stringList values
+
 ## 0.3.3 - 2024-07-17
 
 - Reduces volume of internal logging done by telemetry uploader

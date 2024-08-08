@@ -30,9 +30,10 @@ export default class Context {
 
     if (
       Object.values(contexts).some((item: any) =>
-        Object.values(item).some((value: any) => typeof value === "object")
+        Object.values(item).some((value: any) => typeof value === "object" && value !== null)
       )
     ) {
+      // we decided to allow null values, which requres an extra check since typeof null is object
       console.error("Nested objects are not supported in context values at this time");
     }
 

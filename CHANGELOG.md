@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 - 2024-08-20
+
+- Handle non-Latin1 characters in Base64 encoding (#65)
+
 ## 0.3.4 - 2024-07-18
 
 - Fixes error when uploading eval telemetry for stringList values

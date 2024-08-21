@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 - 2024-08-21
+
+- Support v2 evaluation endpoint / global delivery (#63)
+
 ## 0.3.5 - 2024-08-20
 
 - Handle non-Latin1 characters in Base64 encoding (#65)

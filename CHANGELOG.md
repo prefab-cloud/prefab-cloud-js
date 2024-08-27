@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 - 2024-08-27
+
+- Failover to waistband if belt and suspenders are down (#66)
+
 ## 0.4.0 - 2024-08-21
 
 - Support v2 evaluation endpoint / global delivery (#63)

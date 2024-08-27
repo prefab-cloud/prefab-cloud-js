@@ -20,6 +20,7 @@ describe("overriding endpoints", () => {
     expect(loader.endpoints).toStrictEqual([
       "https://belt.prefab.cloud/api/v2",
       "https://suspenders.prefab.cloud/api/v2",
+      "https://waistband.prefab.cloud/api/v2",
     ]);
   });
 
@@ -183,13 +184,13 @@ describe("load", () => {
 
       loader.load().catch((reason: any) => {
         expect(reason.message).toEqual("Network error");
-        expect(fetchCount).toStrictEqual(2);
+        expect(fetchCount).toStrictEqual(3);
 
         if (!requestUrl) {
           throw new Error("Last fetch hasn't happened");
         }
 
-        expect(requestUrl.host).toStrictEqual("suspenders.prefab.cloud");
+        expect(requestUrl.host).toStrictEqual("waistband.prefab.cloud");
       });
     });
   });

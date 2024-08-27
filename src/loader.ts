@@ -21,11 +21,11 @@ export type FetchOptions = {
   headers: Headers;
 };
 
-const defaultEndpoints = ["belt", "suspenders"].map(
+const defaultEndpoints = ["belt", "suspenders", "waistband"].map(
   (subdomain) => `https://${subdomain}.prefab.cloud/api/v2`
 );
 
-const BELT_TIMEOUT = 2000;
+const EARLY_TIMEOUT = 2000;
 
 export default class Loader {
   apiKey: string;
@@ -104,9 +104,9 @@ export default class Loader {
         }
       });
 
-    // Use an early timeout if we're not on the last endpoint. But if the user-provided timeout is less than BELT_TIMEOUT, use that
+    // Use an early timeout if we're not on the last endpoint. But if the user-provided timeout is less than EARLY_TIMEOUT, use that
     const timeout =
-      index < this.endpoints.length - 1 ? Math.min(this.timeout, BELT_TIMEOUT) : this.timeout;
+      index < this.endpoints.length - 1 ? Math.min(this.timeout, EARLY_TIMEOUT) : this.timeout;
 
     this.abortTimeoutId = setTimeout(() => {
       this.abortController?.abort();

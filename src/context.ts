@@ -2,7 +2,35 @@ import Key from "./key";
 import ContextValue from "./contextValue";
 import base64Encode from "./base64Encode";
 
-type Contexts = { [key: Key]: Record<string, ContextValue> };
+export type Contexts = { [key: Key]: Record<string, ContextValue> };
+
+const isEqual = (a: Contexts, b: Contexts) => {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+
+  if (aKeys.length !== bKeys.length) {
+    return false;
+  }
+
+  return aKeys.every((key) => {
+    const aValues = a[key];
+    const bValues = b[key];
+
+    const aValuesKeys = Object.keys(aValues);
+    const bValuesKeys = Object.keys(bValues);
+
+    if (aValuesKeys.length !== bValuesKeys.length) {
+      return false;
+    }
+
+    return aValuesKeys.every((ckey) => {
+      const aValue = aValues[ckey];
+      const bValue = bValues[ckey];
+
+      return aValue === bValue;
+    });
+  });
+};
 
 const getType = (value: ContextValue) => {
   if (typeof value === "string") {
@@ -40,6 +68,10 @@ export default class Context {
     }
 
     this.contexts = contexts;
+  }
+
+  equals(other: Context) {
+    return isEqual(this.contexts, other.contexts);
   }
 
   encode() {

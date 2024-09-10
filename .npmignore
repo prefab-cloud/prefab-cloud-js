@@ -13,3 +13,4 @@ test/
 .prettierrc
 .tool-versions
 *.tgz
+Makefile

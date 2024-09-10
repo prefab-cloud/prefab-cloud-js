@@ -1,4 +1,4 @@
-import { prefab, Prefab } from "./src/prefab";
+import { prefab, Prefab, PrefabBootstrap } from "./src/prefab";
 import { Config } from "./src/config";
 import ConfigValue, { Duration } from "./src/configValue";
 import Context from "./src/context";
@@ -15,5 +15,6 @@ export {
   ContextValue,
   Duration,
   Prefab,
+  PrefabBootstrap,
   version,
 };

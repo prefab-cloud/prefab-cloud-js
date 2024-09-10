@@ -1,5 +1,7 @@
 import fetchMock, { enableFetchMocks } from "jest-fetch-mock";
-import { Prefab, Config, Context } from "../index";
+import { Prefab, Config, Context, type PrefabBootstrap } from "../index";
+import { Contexts } from "./context";
+import { type EvaluationPayload } from "./config";
 import { DEFAULT_TIMEOUT } from "./apiHelpers";
 import { wait } from "../test/wait";
 import version from "./version";
@@ -10,9 +12,11 @@ let prefab = new Prefab();
 
 type InitParams = Parameters<typeof prefab.init>[0];
 
+const defaultTestContext: Contexts = { user: { device: "desktop", key: "abcdefg" } };
+
 const defaultTestInitParams: InitParams = {
   apiKey: "1234",
-  context: new Context({ user: { device: "desktop" } }),
+  context: new Context(defaultTestContext),
   collectEvaluationSummaries: false,
 };
 
@@ -214,15 +218,69 @@ describe("setConfig", () => {
     prefab.setConfig({
       turbo: 2.5,
       foo: true,
+      jsonExample: { foo: "bar", baz: 123 },
+      durationExample: { ms: 1884 * 1000, seconds: 1884 },
     });
 
     expect(prefab.configs).toEqual({
       turbo: new Config("turbo", 2.5, "number"),
       foo: new Config("foo", true, "boolean"),
+      jsonExample: new Config("jsonExample", { foo: "bar", baz: 123 }, "object"),
+      durationExample: new Config("durationExample", { ms: 1884000, seconds: 1884 }, "object"),
     });
 
     expect(prefab.isEnabled("foo")).toBe(true);
     expect(prefab.get("turbo")).toEqual(2.5);
+    expect(prefab.get("jsonExample")).toStrictEqual({ foo: "bar", baz: 123 });
+    expect(prefab.getDuration("durationExample")).toStrictEqual({
+      ms: 1884 * 1000,
+      seconds: 1884,
+    });
+  });
+});
+
+describe("bootstrapping", () => {
+  it("skips the http request if the context is unchanged", async () => {
+    expect(prefab.loaded).toBe(false);
+
+    /* eslint-disable no-underscore-dangle */
+    (globalThis as any)._prefabBootstrap = {
+      // This is defaultTestContext but with re-ordered keys
+      context: { user: { key: "abcdefg", device: "desktop" } },
+      evaluations: {
+        turbo: { value: { double: 99.5 } },
+      } as unknown as EvaluationPayload,
+    } as PrefabBootstrap;
+
+    await prefab.init(defaultTestInitParams);
+
+    expect(prefab.configs).toEqual({
+      turbo: new Config("turbo", 99.5, "double", { double: 99.5 }),
+    });
+    expect(prefab.get("turbo")).toEqual(99.5);
+    expect(prefab.loaded).toBe(true);
+  });
+
+  it("does not skip the http request if the context is different", async () => {
+    const data = { evaluations: { turbo: { value: { double: 2.5 } } } };
+    fetchMock.mockResponse(JSON.stringify(data));
+
+    expect(prefab.loaded).toBe(false);
+
+    /* eslint-disable no-underscore-dangle */
+    (globalThis as any)._prefabBootstrap = {
+      context: { user: { ...defaultTestContext.user, key: "1324" } },
+      evaluations: {
+        turbo: { value: { double: 99.5 } },
+      } as unknown as EvaluationPayload,
+    } as PrefabBootstrap;
+
+    await prefab.init(defaultTestInitParams);
+
+    expect(prefab.configs).toEqual({
+      turbo: new Config("turbo", 2.5, "double", { double: 2.5 }),
+    });
+    expect(prefab.loaded).toBe(true);
   });
 });
 
@@ -397,7 +455,7 @@ describe("updateContext", () => {
       };
     });
 
-    const initialContext = new Context({ user: { device: "desktop" } });
+    const initialContext = new Context(defaultTestContext);
 
     await prefab.init(defaultTestInitParams);
 

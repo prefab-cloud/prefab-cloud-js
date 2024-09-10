@@ -2,7 +2,7 @@ import { v4 as uuid } from "uuid";
 
 import { Config, EvaluationPayload, RawConfigWithoutTypes } from "./config";
 import ConfigValue, { type Duration } from "./configValue";
-import Context from "./context";
+import Context, { Contexts } from "./context";
 import { EvaluationSummaryAggregator } from "./evaluationSummaryAggregator";
 import Loader, { CollectContextModeType } from "./loader";
 import { PREFIX as loggerPrefix, isValidLogLevel, Severity, shouldLog } from "./logger";
@@ -11,6 +11,11 @@ import { LoggerAggregator } from "./loggerAggregator";
 import version from "./version";
 
 type EvaluationCallback = (key: string, value: ConfigValue, context: Context | undefined) => void;
+
+export interface PrefabBootstrap {
+  evaluations: EvaluationPayload;
+  context: Contexts;
+}
 
 type InitParams = {
   apiKey: string;
@@ -113,7 +118,11 @@ export class Prefab {
       this.loggerAggregator = new LoggerAggregator(this, 100000);
     }
 
-    if ((collectEvaluationSummaries || collectLoggerNames) && typeof window !== "undefined") {
+    if (
+      (collectEvaluationSummaries || collectLoggerNames) &&
+      typeof window !== "undefined" &&
+      typeof window.addEventListener === "function"
+    ) {
       window.addEventListener("beforeunload", () => {
         this.evalutionSummaryAggregator?.sync();
         this.loggerAggregator?.sync();
@@ -156,6 +165,18 @@ export class Prefab {
   private async load() {
     if (!this.loader || !this.context) {
       throw new Error("Prefab not initialized. Call init() first.");
+    }
+
+    /* eslint-disable no-underscore-dangle */
+    if (globalThis && (globalThis as any)._prefabBootstrap) {
+      /* eslint-disable no-underscore-dangle */
+      const prefabBootstrap = (globalThis as any)._prefabBootstrap as PrefabBootstrap;
+      const bootstrapContext = new Context(prefabBootstrap.context);
+
+      if (this.context.equals(bootstrapContext)) {
+        this.setConfig({ evaluations: prefabBootstrap.evaluations });
+        return Promise.resolve();
+      }
     }
 
     // make sure we have the freshest context

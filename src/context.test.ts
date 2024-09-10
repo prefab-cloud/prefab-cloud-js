@@ -76,3 +76,46 @@ describe("encode", () => {
     );
   });
 });
+
+describe("equals", () => {
+  it("is true when the context values match (regardless of order)", () => {
+    const context1 = new Context({
+      user: { firstName: "Fred", lastName: "Jones", id: 10001 },
+      team: { name: "Sales", isCostCenter: false },
+    });
+
+    const context2 = new Context({
+      team: { isCostCenter: false, name: "Sales" },
+      user: { id: 10001, firstName: "Fred", lastName: "Jones" },
+    });
+
+    expect(context1.equals(context2)).toBe(true);
+  });
+
+  it("is false when the context values do not match", () => {
+    const context1 = new Context({
+      user: { firstName: "Fred", lastName: "Jones", id: 10001 },
+      team: { name: "Sales", isCostCenter: false },
+    });
+
+    const context2 = new Context({
+      user: { firstName: "Fred", lastName: "Jones", id: 10001 },
+      team: { name: "Sales", isCostCenter: true },
+    });
+
+    expect(context1.equals(context2)).toBe(false);
+
+    const context3 = new Context({
+      user: { firstName: "Fred", lastName: "Jones", id: 10001 },
+    });
+
+    expect(context1.equals(context3)).toBe(false);
+
+    const context4 = new Context({
+      user: { firstName: "Fred", lastName: "Jones", id: 10001 },
+      team: { name: "Sales", isCostCenter: false, extra: "extra" },
+    });
+
+    expect(context1.equals(context4)).toBe(false);
+  });
+});

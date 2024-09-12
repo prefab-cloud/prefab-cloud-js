@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 - 2024-09-12
+
+- Allow reading bootstrapped data on `window` (#67)
+
 ## 0.4.1 - 2024-08-27
 
 - Failover to waistband if belt and suspenders are down (#66)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3 - 2095-03-12
+
+- Use tsup for better ESM/CJS compatibility
+
 ## 0.4.2 - 2024-09-12
 
 - Allow reading bootstrapped data on `window` (#67)

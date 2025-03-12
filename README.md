@@ -152,3 +152,45 @@ it("shows the turbo button when the feature is enabled", () => {
 
 [Prefab]: https://www.prefab.cloud/
 [jsDelivr]: https://www.jsdelivr.com/package/npm/@prefab-cloud/prefab-cloud-js
+
+## Release Scripts
+
+This package includes scripts to simplify the release process:
+
+### Standard Release
+
+To publish a new standard release (patch version):
+
+```bash
+./publish-release.sh
+```
+
+This script:
+
+- Runs tests
+- Builds the package
+- Bumps the patch version
+- Publishes to npm with the `latest` tag
+
+### Pre-release
+
+To publish a pre-release version:
+
+- Manually bump the version in package.json (e.g. bump the patch version and add -pre1)
+- `npm install` to update the lockfile
+
+```bash
+./publish-prerelease.sh
+```
+
+This script:
+
+- Runs tests
+- Builds the package
+- Publishes to npm with the `pre` tag
+
+To install the pre-release version:
+
+```bash
+npm install @prefab-cloud/prefab-cloud-js@pre
+```

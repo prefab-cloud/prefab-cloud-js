@@ -1,20 +1,13 @@
 import { prefab, Prefab, PrefabBootstrap } from "./src/prefab";
 import { Config } from "./src/config";
-import ConfigValue, { Duration } from "./src/configValue";
 import Context from "./src/context";
-import ContextValue from "./src/contextValue";
-import { CollectContextModeType } from "./src/loader";
 import version from "./src/version";
 
-export {
-  prefab,
-  CollectContextModeType,
-  Config,
-  ConfigValue,
-  Context,
-  ContextValue,
-  Duration,
-  Prefab,
-  PrefabBootstrap,
-  version,
-};
+export { prefab, Prefab, Config, Context, version };
+
+export { PrefabBootstrap };
+
+export type { Duration } from "./src/configValue";
+export type { default as ConfigValue } from "./src/configValue";
+export type { default as ContextValue } from "./src/contextValue";
+export type { CollectContextModeType } from "./src/loader";

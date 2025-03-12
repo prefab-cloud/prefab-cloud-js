@@ -14,3 +14,18 @@ test/
 .tool-versions
 *.tgz
 Makefile
+# Development files
+src/**/*.test.ts
+src/**/*.test.tsx
+jest.config.ts
+tsconfig.json
+tsup.config.ts
+publish-prerelease.sh
+publish-release.sh
+# Source files (since we have compiled output)
+src/
+index.ts
+# Other development files
+.eslintrc
+.prettier*
+.husky

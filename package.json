@@ -38,7 +38,7 @@
     "postversion": "git push && git push --tags",
     "prepare": "husky install",
     "prettier": "prettier . -l",
-    "prettier:fix": "npm run prettier --write .",
+    "prettier:fix": "prettier --write .",
     "release": "npm run prettier:fix; npm run lint:fix; npm run test",
     "test": "jest --verbose",
     "version": "echo 'version' && npm run release && npm run prettier:fix && npm run build && git add src/version.ts"

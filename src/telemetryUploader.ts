@@ -65,6 +65,18 @@ export default class TelemetryUploader {
       .catch((error) => {
         this.clearAbortTimeout();
 
+        // Silently handle AbortErrors (from timeouts or page navigations)
+        if (error.name === "AbortError") {
+          try {
+            // eslint-disable-next-line no-console
+            console.debug("Prefab telemetry request aborted");
+          } catch (e) {
+            // no-op
+          }
+          resolve({ status: "aborted" });
+          return;
+        }
+
         reject(error);
       });
 

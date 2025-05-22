@@ -44,7 +44,7 @@ export default class Loader {
 
   abortController: AbortController | undefined;
 
-  isAborted: boolean = false;
+  isAborted = false;
 
   constructor({
     apiKey,

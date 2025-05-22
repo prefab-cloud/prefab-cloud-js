@@ -1,4 +1,4 @@
-import { headers, DEFAULT_TIMEOUT } from "./apiHelpers";
+import { DEFAULT_TIMEOUT, headers } from "./apiHelpers";
 
 export type TelemetryUploaderParams = {
   apiKey: string;
@@ -41,6 +41,7 @@ export default class TelemetryUploader {
   postToEndpoint(options: object, resolve: (value: any) => void, reject: (value: any) => void) {
     const controller = new AbortController() as AbortController;
     const signal = controller?.signal;
+    let isAborted = false;
 
     const url = TelemetryUploader.postUrl(this.apiEndpoint);
 
@@ -81,7 +82,10 @@ export default class TelemetryUploader {
       });
 
     this.abortTimeoutId = setTimeout(() => {
-      controller.abort();
+      if (!isAborted) {
+        isAborted = true;
+        controller.abort();
+      }
     }, this.timeout);
   }
 

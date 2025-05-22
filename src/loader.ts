@@ -1,4 +1,4 @@
-import { headers, DEFAULT_TIMEOUT } from "./apiHelpers";
+import { DEFAULT_TIMEOUT, headers } from "./apiHelpers";
 import { EvaluationPayload } from "./config";
 import Context from "./context";
 
@@ -44,6 +44,8 @@ export default class Loader {
 
   abortController: AbortController | undefined;
 
+  isAborted: boolean = false;
+
   constructor({
     apiKey,
     context,
@@ -74,6 +76,7 @@ export default class Loader {
   ) {
     this.abortController = new AbortController() as AbortController;
     const { signal } = this.abortController;
+    this.isAborted = false;
 
     const endpoint = this.endpoints[index];
     const url = this.url(endpoint);
@@ -109,12 +112,18 @@ export default class Loader {
       index < this.endpoints.length - 1 ? Math.min(this.timeout, EARLY_TIMEOUT) : this.timeout;
 
     this.abortTimeoutId = setTimeout(() => {
-      this.abortController?.abort();
+      if (!this.isAborted) {
+        this.isAborted = true;
+        this.abortController?.abort();
+      }
     }, timeout);
   }
 
   load() {
-    this.abortController?.abort();
+    if (!this.isAborted) {
+      this.isAborted = true;
+      this.abortController?.abort();
+    }
 
     const options = {
       headers: headers(this.apiKey, this.clientVersion),

@@ -25,7 +25,7 @@ describe("afterEvaluationCallback", () => {
     const prefab = new Prefab();
     prefab.afterEvaluationCallback = callback;
 
-    prefab.setConfig({ turbo: 2.5 });
+    prefab.hydrate({ turbo: 2.5 });
 
     expect(callback).not.toHaveBeenCalled();
 
@@ -46,7 +46,7 @@ describe("afterEvaluationCallback", () => {
 
     prefab.afterEvaluationCallback = callback;
 
-    prefab.setConfig({ turbo: 2.5 });
+    prefab.hydrate({ turbo: 2.5 });
 
     expect(callback).not.toHaveBeenCalled();
 
@@ -72,7 +72,7 @@ describe("afterEvaluationCallback", () => {
     await waitForAsyncCall();
     expect(callback).toHaveBeenCalledTimes(0);
 
-    prefab.setConfig({ foo: true });
+    prefab.hydrate({ foo: true });
 
     expect(prefab.isEnabled("foo")).toBe(true);
 
@@ -94,7 +94,7 @@ describe("afterEvaluationCallback", () => {
     await waitForAsyncCall();
     expect(callback).toHaveBeenCalledTimes(0);
 
-    prefab.setConfig({ foo: true });
+    prefab.hydrate({ foo: true });
 
     expect(prefab.isEnabled("foo")).toBe(true);
 

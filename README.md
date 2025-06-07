@@ -65,19 +65,21 @@ if (prefab.isEnabled('cool-feature') {
 setTimeout(ping, prefab.get('ping-delay'));
 ```
 
-Here's an explanation of each property
+## Client API
 
-| property        | example                              | purpose                                                                                      |
-| --------------- | ------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `isEnabled`     | `prefab.isEnabled("new-logo")`       | returns a boolean (default `false`) if a feature is enabled based on the current context     |
-| `get`           | `prefab.get('retry-count')`          | returns the value of a flag or config evaluated in the current context                       |
-| `getDuration`   | `prefab.getDuration('http.timeout')` | returns a duration object `{seconds: number, ms: number}`                                    |
-| `loaded`        | `if (prefab.loaded) { ... }`         | a boolean indicating whether prefab content has loaded                                       |
-| `shouldLog`     | `if (prefab.shouldLog(...)) {`       | returns a boolean indicating whether the proposed log level is valid for the current context |
-| `poll`          | `prefab.poll({frequencyInMs})`       | starts polling every `frequencyInMs` ms.                                                     |
-| `stopPolling`   | `prefab.stopPolling()`               | stops the polling process                                                                    |
-| `context`       | `prefab.context`                     | get the current context (after `init()`).                                                    |
-| `updateContext` | `prefab.updateContext(newContext)`   | update the context and refetch. Pass `false` as a second argument to skip refetching         |
+| property        | example                               | purpose                                                                                      |
+| --------------- | ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `isEnabled`     | `prefab.isEnabled("new-logo")`        | returns a boolean (default `false`) if a feature is enabled based on the current context     |
+| `get`           | `prefab.get('retry-count')`           | returns the value of a flag or config evaluated in the current context                       |
+| `getDuration`   | `prefab.getDuration('http.timeout')`  | returns a duration object `{seconds: number, ms: number}`                                    |
+| `loaded`        | `if (prefab.loaded) { ... }`          | a boolean indicating whether prefab content has loaded                                       |
+| `shouldLog`     | `if (prefab.shouldLog(...)) {`        | returns a boolean indicating whether the proposed log level is valid for the current context |
+| `poll`          | `prefab.poll({frequencyInMs})`        | starts polling every `frequencyInMs` ms.                                                     |
+| `stopPolling`   | `prefab.stopPolling()`                | stops the polling process                                                                    |
+| `context`       | `prefab.context`                      | get the current context (after `init()`).                                                    |
+| `updateContext` | `prefab.updateContext(newContext)`    | update the context and refetch. Pass `false` as a second argument to skip refetching         |
+| `extract`       | `prefab.extract()`                    | returns the current config as a plain object of key, config value pairs                      |
+| `hydrate`       | `prefab.hydrate(configurationObject)` | sets the current config based on a plain object of key, config value pairs                   |
 
 ## `shouldLog()`
 

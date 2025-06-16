@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.6 - 2025-06-16
+
+- feat: add formal support for extract/hydrate of prefab config #73
+
 ## 0.4.5 - 2025-05-22
 
 - Extra error handling for loader and telemetry uploader

@@ -211,11 +211,11 @@ describe("poll", () => {
   });
 });
 
-describe("setConfig", () => {
+describe("hydrate", () => {
   it("works when types are not provided", () => {
     expect(prefab.configs).toEqual({});
 
-    prefab.setConfig({
+    prefab.hydrate({
       turbo: 2.5,
       foo: true,
       jsonExample: { foo: "bar", baz: 123 },
@@ -285,7 +285,7 @@ describe("bootstrapping", () => {
 });
 
 test("get", () => {
-  prefab.setConfig({
+  prefab.hydrate({
     evaluations: {
       turbo: { value: { double: 2.5 } },
       durationExample: { value: { duration: { millis: 1884000, definition: "PT1884S" } } },
@@ -308,7 +308,7 @@ test("get", () => {
 });
 
 test("getDuration", () => {
-  prefab.setConfig({
+  prefab.hydrate({
     evaluations: {
       turbo: { value: { double: 2.5 } },
       durationExample: {
@@ -331,9 +331,31 @@ test("isEnabled", () => {
   // it is false when no config is loaded
   expect(prefab.isEnabled("foo")).toBe(false);
 
-  prefab.setConfig({ foo: true });
+  prefab.hydrate({ foo: true });
 
   expect(prefab.isEnabled("foo")).toBe(true);
+});
+
+describe("extract", () => {
+  it("correctly extracts configuration values", () => {
+    prefab.hydrate({
+      turbo: 2.5,
+      foo: true,
+      jsonExample: { foo: "bar", baz: 123 },
+    });
+
+    const extracted = prefab.extract();
+    expect(extracted).toEqual({
+      turbo: 2.5,
+      foo: true,
+      jsonExample: { foo: "bar", baz: 123 },
+    });
+  });
+
+  it("returns an empty object when no configs are set", () => {
+    const extracted = prefab.extract();
+    expect(extracted).toEqual({});
+  });
 });
 
 describe("shouldLog", () => {
@@ -356,7 +378,7 @@ describe("shouldLog", () => {
   });
 
   test("compares against the value when present", () => {
-    prefab.setConfig({
+    prefab.hydrate({
       "log-level.example": "INFO",
     });
 
@@ -380,7 +402,7 @@ describe("shouldLog", () => {
   test("traverses the hierarchy to get the closest level for the loggerName", () => {
     const loggerName = "some.test.name.with.more.levels";
 
-    prefab.setConfig({
+    prefab.hydrate({
       "log-level.some.test.name": "TRACE",
       "log-level.some.test": "DEBUG",
       "log-level.irrelevant": "ERROR",
@@ -420,7 +442,7 @@ describe("shouldLog", () => {
   });
 
   it("can use the root log level setting if nothing is found in the hierarchy", () => {
-    prefab.setConfig({
+    prefab.hydrate({
       "log-level": "INFO",
     });
 

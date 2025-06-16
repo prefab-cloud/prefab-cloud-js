@@ -134,7 +134,24 @@ export class Prefab {
     return this.load();
   }
 
-  get configs(): { [key: string]: Config } {
+  extract(): Record<string, Config["value"]> {
+    return Object.entries(this._configs).reduce(
+      (agg, [key, value]) => ({
+        ...agg,
+        [key]: value.value,
+      }),
+      {} as Record<string, Config["value"]>
+    );
+  }
+
+  hydrate(rawValues: RawConfigWithoutTypes | EvaluationPayload): void {
+    this.setConfigPrivate(rawValues);
+  }
+
+  get configs(): Record<string, Config> {
+    // Log message in yellow without adding chalk dependency
+    console.warn("\x1b[33m%s\x1b[0m", 'Deprecated: Use "prefab.extract" instead');
+
     return this._configs;
   }
 
@@ -174,7 +191,7 @@ export class Prefab {
       const bootstrapContext = new Context(prefabBootstrap.context);
 
       if (this.context.equals(bootstrapContext)) {
-        this.setConfig({ evaluations: prefabBootstrap.evaluations });
+        this.setConfigPrivate({ evaluations: prefabBootstrap.evaluations });
         return Promise.resolve();
       }
     }
@@ -185,7 +202,7 @@ export class Prefab {
     return this.loader
       .load()
       .then((rawValues: any) => {
-        this.setConfig(rawValues as EvaluationPayload);
+        this.setConfigPrivate(rawValues as EvaluationPayload);
       })
       .finally(() => {
         if (this.pollStatus.status === "running") {
@@ -254,6 +271,13 @@ export class Prefab {
   }
 
   setConfig(rawValues: RawConfigWithoutTypes | EvaluationPayload) {
+    // Log message in yellow without adding chalk dependency
+    console.warn("\x1b[33m%s\x1b[0m", 'Deprecated: Use "prefab.hydrate" instead');
+
+    this.setConfigPrivate(rawValues);
+  }
+
+  private setConfigPrivate(rawValues: RawConfigWithoutTypes | EvaluationPayload) {
     this._configs = Config.digest(rawValues);
     this.loaded = true;
   }
@@ -274,7 +298,7 @@ export class Prefab {
       return undefined;
     }
 
-    const config = this.configs[key];
+    const config = this._configs[key];
 
     const value = config?.value;
 

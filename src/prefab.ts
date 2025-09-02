@@ -149,9 +149,6 @@ export class Prefab {
   }
 
   get configs(): Record<string, Config> {
-    // Log message in yellow without adding chalk dependency
-    console.warn("\x1b[33m%s\x1b[0m", 'Deprecated: Use "prefab.extract" instead');
-
     return this._configs;
   }
 

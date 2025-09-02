@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.7 - 2025-09-02
+
+- Remove deprecation warning #75
+
 ## 0.4.6 - 2025-06-16
 
 - feat: add formal support for extract/hydrate of prefab config #73
